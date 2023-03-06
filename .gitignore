@@ -1,0 +1,9 @@
+.idea
+.vs_code
+vendor/
+composer.lock
+.env
+.phpunit.result.cache
+/storage/*.key
+/public/hot
+/public/storage
