@@ -1,7 +1,7 @@
 {
-    "name": "juniore/laravel-shoppingcart",
+    "name": "juniore/laravel-shoppingcart-v2",
     "version": "2.0.0",
-    "description": "Laravel shopping cart",
+    "description": "Laravel shopping cart v2",
     "license": "MIT",
     "require": {
         "ext-json": "*",
