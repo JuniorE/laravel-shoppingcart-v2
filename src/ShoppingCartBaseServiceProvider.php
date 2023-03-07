@@ -50,9 +50,5 @@ class ShoppingCartBaseServiceProvider extends ServiceProvider
         $this->publishes([
             __DIR__.'/../config/shoppingcart.php' => config_path('shoppingcart.php'),
         ]);
-
-        $this->publishes([
-            __DIR__.'/../database/migrations/' => database_path('/migrations')
-        ], 'migrations');
     }
 }
