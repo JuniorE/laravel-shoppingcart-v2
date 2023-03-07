@@ -48,7 +48,11 @@ class ShoppingCartBaseServiceProvider extends ServiceProvider
     private function publishResources()
     {
         $this->publishes([
-            __DIR__.'/../config/shoppingcart.php' => config_path('shoppingcart'),
+            __DIR__.'/../config/shoppingcart.php' => config_path('shoppingcart.php'),
         ]);
+
+        $this->publishes([
+            __DIR__.'/../database/migrations/' => database_path('/migrations')
+        ], 'migrations');
     }
 }
