@@ -1,8 +1,6 @@
 <?php
 
-
 namespace juniorE\ShoppingCart\Events\CartShippingRate;
-
 
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Foundation\Events\Dispatchable;
@@ -14,15 +12,12 @@ class CartShippingRateDeletedEvent
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     /**
-     * @var CartShippingRate $item
+     * @var CartShippingRate
      */
     public $item;
 
-
     /**
      * Create a new Event instance
-     *
-     * @param CartShippingRate $item
      */
     public function __construct(CartShippingRate $item)
     {

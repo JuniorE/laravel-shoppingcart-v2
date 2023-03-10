@@ -1,10 +1,11 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
-class CreateCartItemsTable extends Migration {
+class CreateCartItemsTable extends Migration
+{
     /**
      * Run the migration
      *
@@ -12,11 +13,11 @@ class CreateCartItemsTable extends Migration {
      */
     public function up()
     {
-        Schema::create('cart_items', function(Blueprint $table) {
+        Schema::create('cart_items', function (Blueprint $table) {
             $table->engine = 'InnoDB';
             $table->bigIncrements('id');
-            $table->foreignId('cart_id')->constrained()->onDelete("cascade");
-            $table->foreignId('parent_id')->nullable()->constrained('cart_items')->onDelete("cascade");
+            $table->foreignId('cart_id')->constrained()->onDelete('cascade');
+            $table->foreignId('parent_id')->nullable()->constrained('cart_items')->onDelete('cascade');
             $table->double('quantity')->default(0);
             $table->string('plu');
             $table->integer('type')->default(1);

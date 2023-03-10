@@ -1,8 +1,6 @@
 <?php
 
-
 namespace juniorE\ShoppingCart\Data\Interfaces;
-
 
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
@@ -11,13 +9,11 @@ use juniorE\ShoppingCart\Models\CartCoupon;
 interface CartCouponDatabase
 {
     /**
-     * @param int|null $cartId
      * @return Collection|CartCoupon[]|null
      */
-    public function getCoupons(int $cartId=null);
+    public function getCoupons(int $cartId = null);
 
     /**
-     * @param string $coupon
      * @return CartCoupon|null
      */
     public function getCoupon(string $coupon);
@@ -40,7 +36,7 @@ interface CartCouponDatabase
 
     public function setUsagePerCoupon(CartCoupon $coupon, int $limit): void;
 
-    public function increaseUsedCounter(CartCoupon $coupon, int $amount=1): void;
+    public function increaseUsedCounter(CartCoupon $coupon, int $amount = 1): void;
 
     public function setConditional(CartCoupon $coupon, bool $conditional): void;
 

@@ -1,8 +1,6 @@
 <?php
 
-
 namespace juniorE\ShoppingCart\Contracts;
-
 
 use Carbon\Carbon;
 use juniorE\ShoppingCart\Models\CartCoupon;
@@ -27,7 +25,7 @@ interface CartCouponRepository
 
     public function setUsagePerCoupon(CartCoupon $coupon, int $limit): void;
 
-    public function increaseUsedCounter(CartCoupon $coupon, int $amount=1): void;
+    public function increaseUsedCounter(CartCoupon $coupon, int $amount = 1): void;
 
     public function setConditional(CartCoupon $coupon, bool $conditional): void;
 

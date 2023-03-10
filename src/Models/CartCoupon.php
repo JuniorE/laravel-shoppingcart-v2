@@ -1,8 +1,6 @@
 <?php
 
-
 namespace juniorE\ShoppingCart\Models;
-
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
@@ -13,7 +11,6 @@ use juniorE\ShoppingCart\Events\CartCoupon\CartCouponUpdatedEvent;
 
 /**
  * Class CartCoupon
- * @package juniorE\ShoppingCart\Models
  *
  * @property int $id
  * @property string $name
@@ -25,11 +22,11 @@ use juniorE\ShoppingCart\Events\CartCoupon\CartCouponUpdatedEvent;
  * @property int $usage_per_customer
  * @property int $uses_per_coupon
  * @property int $times_used
- * @property boolean $conditional
+ * @property bool $conditional
  * @property array $conditions
  * @property bool|null $ends_other_coupons
- * @property double|null $discount_amount
- * @property double|null $discount_percent
+ * @property float|null $discount_amount
+ * @property float|null $discount_percent
  * @property int|null $discount_quantity
  * @property int|null $discount_step
  * @property bool $apply_to_shipping
@@ -42,42 +39,42 @@ class CartCoupon extends Model
     protected $guarded = [];
 
     protected $casts = [
-        "conditional" => "boolean",
-        "additional" => "array",
-        "conditions" => "array",
-        "starts_from" => "datetime",
-        "ends_till" => "datetime",
-        "updated_at" => "datetime",
-        "created_at" => "datetime",
+        'conditional' => 'boolean',
+        'additional' => 'array',
+        'conditions' => 'array',
+        'starts_from' => 'datetime',
+        'ends_till' => 'datetime',
+        'updated_at' => 'datetime',
+        'created_at' => 'datetime',
 
     ];
 
-    private function conditionsSatisfied(\juniorE\ShoppingCart\Cart $cart, CartItem $item=null)
+    private function conditionsSatisfied(Cart $cart, CartItem $item = null)
     {
         if ($this->conditional) {
-            if (isset($this->conditions["cart_contains_plus"])) {
-                foreach($this->conditions["cart_contains_plus"] as $plus) {
-                    if($cart->contains($plus)) {
+            if (isset($this->conditions['cart_contains_plus'])) {
+                foreach ($this->conditions['cart_contains_plus'] as $plus) {
+                    if ($cart->contains($plus)) {
                         return true;
                     }
                 }
+
                 return false;
-            }
-            elseif ($item && isset($this->conditions["applies_to"])) {
-                return collect($this->conditions["applies_to"])->contains($item->plu);
+            } elseif ($item && isset($this->conditions['applies_to'])) {
+                return collect($this->conditions['applies_to'])->contains($item->plu);
             }
         }
 
         return true;
     }
 
-    public function discount(float $price, int $quantity=0, float $productPrice=0.0, \juniorE\ShoppingCart\Cart $cart=null)
+    public function discount(float $price, int $quantity = 0, float $productPrice = 0.0, Cart $cart = null)
     {
-        if (!$cart) {
+        if (! $cart) {
             $cart = cart();
         }
 
-        if (!$this->conditionsSatisfied($cart)) {
+        if (! $this->conditionsSatisfied($cart)) {
             return 0;
         }
 
@@ -100,8 +97,10 @@ class CartCoupon extends Model
                     $quantity -= $this->discount_step;
                     $freeUnits++;
                 }
+
                 return $freeUnits * $productPrice;
         }
+
         return 0;
     }
 
@@ -109,15 +108,15 @@ class CartCoupon extends Model
     {
         parent::boot();
 
-        static::updated(function(CartCoupon $model) {
+        static::updated(function (CartCoupon $model) {
             event(new CartCouponUpdatedEvent($model));
         });
 
-        static::created(function(CartCoupon $model) {
+        static::created(function (CartCoupon $model) {
             event(new CartCouponCreatedEvent($model));
         });
 
-        static::deleted(function(CartCoupon $model) {
+        static::deleted(function (CartCoupon $model) {
             event(new CartCouponDeletedEvent($model));
         });
     }

@@ -1,8 +1,6 @@
 <?php
 
-
 namespace juniorE\ShoppingCart;
-
 
 use Carbon\Carbon;
 use juniorE\ShoppingCart\Data\Interfaces\CartCouponDatabase;
@@ -10,7 +8,6 @@ use juniorE\ShoppingCart\Models\CartCoupon;
 
 class CartCouponRepository implements Contracts\CartCouponRepository
 {
-
     public function addCoupon(array $data): CartCoupon
     {
         return app(CartCouponDatabase::class)->addCoupon($data);

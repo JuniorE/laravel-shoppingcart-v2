@@ -1,13 +1,12 @@
 <?php
 
-
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use juniorE\ShoppingCart\Cart;
 use juniorE\ShoppingCart\Data\Interfaces\CartDatabase;
 use juniorE\ShoppingCart\Enums\CouponTypes;
 use juniorE\ShoppingCart\Enums\ItemTypes;
-use juniorE\ShoppingCart\Tests\TestCase;
 use juniorE\ShoppingCart\Models as Models;
+use juniorE\ShoppingCart\Tests\TestCase;
 
 class CartTest extends TestCase
 {
@@ -36,7 +35,7 @@ class CartTest extends TestCase
     {
         $this->assertCount(0, cart()->items());
         cart()->addProduct([
-            "plu" => 5
+            'plu' => 5,
         ]);
         $this->assertCount(1, cart()->items());
         $this->assertCount(1, app(CartDatabase::class)
@@ -50,7 +49,7 @@ class CartTest extends TestCase
     {
         $this->assertCount(0, cart()->items());
         $product = cart()->addProduct([
-            "plu" => 5
+            'plu' => 5,
         ]);
         $this->assertCount(1, cart()->items());
         cart()->removeItem($product);
@@ -63,7 +62,7 @@ class CartTest extends TestCase
     public function can_get_product()
     {
         $product = cart()->addProduct([
-            "plu" => 5
+            'plu' => 5,
         ]);
 
         $dbProduct = app(CartDatabase::class)
@@ -80,8 +79,8 @@ class CartTest extends TestCase
     public function can_set_checkout_method()
     {
         $this->assertEquals(null, cart()->getCart()->checkout_method);
-        cart()->setCheckoutMethod("invoice");
-        $this->assertEquals("invoice", cart()->getCart()->checkout_method);
+        cart()->setCheckoutMethod('invoice');
+        $this->assertEquals('invoice', cart()->getCart()->checkout_method);
     }
 
     /**
@@ -89,9 +88,9 @@ class CartTest extends TestCase
      */
     public function can_set_conversion_time()
     {
-        cart()->getCart()->update(["created_at" => now()->addMinutes(-15)]);
+        cart()->getCart()->update(['created_at' => now()->addMinutes(-15)]);
         $this->assertEquals(null, cart()->getCart()->conversion_time);
-        cart()->setCheckoutMethod("invoice");
+        cart()->setCheckoutMethod('invoice');
         $this->assertEquals(15, cart()->getCart()->conversion_time);
     }
 
@@ -101,7 +100,7 @@ class CartTest extends TestCase
     public function can_destroy_cart()
     {
         cart()->addProduct([
-            "plu" => 5
+            'plu' => 5,
         ]);
 
         $this->assertCount(1, cart()->items());
@@ -121,27 +120,27 @@ class CartTest extends TestCase
      */
     public function can_cleanup_idle_carts()
     {
-        DB::table("carts")->insert([
-            ["identifier" => 1, "updated_at" => now()->subDays(1)],
-            ["identifier" => 2, "updated_at" => now()->subDays(10)],
-            ["identifier" => 3, "updated_at" => now()->subDays(11)],
-            ["identifier" => 4, "updated_at" => now()->subDays(13)],
-            ["identifier" => 5, "updated_at" => now()->subDays(14)],
-            ["identifier" => 6, "updated_at" => now()->subDays(17)],
-            ["identifier" => 7, "updated_at" => now()->subDays(24)],
-            ["identifier" => 8, "updated_at" => now()->subDays(30)],
-            ["identifier" => 9, "updated_at" => now()->subDays(31)],
-            ["identifier" => 10, "updated_at" => now()->subDays(32)],
-            ["identifier" => 11, "updated_at" => now()->subDays(34)],
-            ["identifier" => 12, "updated_at" => now()->subDays(42)],
-            ["identifier" => 13, "updated_at" => now()->subDays(42)],
-            ["identifier" => 14, "updated_at" => now()->subDays(42)],
-            ["identifier" => 15, "updated_at" => now()->subDays(42)],
+        DB::table('carts')->insert([
+            ['identifier' => 1, 'updated_at' => now()->subDays(1)],
+            ['identifier' => 2, 'updated_at' => now()->subDays(10)],
+            ['identifier' => 3, 'updated_at' => now()->subDays(11)],
+            ['identifier' => 4, 'updated_at' => now()->subDays(13)],
+            ['identifier' => 5, 'updated_at' => now()->subDays(14)],
+            ['identifier' => 6, 'updated_at' => now()->subDays(17)],
+            ['identifier' => 7, 'updated_at' => now()->subDays(24)],
+            ['identifier' => 8, 'updated_at' => now()->subDays(30)],
+            ['identifier' => 9, 'updated_at' => now()->subDays(31)],
+            ['identifier' => 10, 'updated_at' => now()->subDays(32)],
+            ['identifier' => 11, 'updated_at' => now()->subDays(34)],
+            ['identifier' => 12, 'updated_at' => now()->subDays(42)],
+            ['identifier' => 13, 'updated_at' => now()->subDays(42)],
+            ['identifier' => 14, 'updated_at' => now()->subDays(42)],
+            ['identifier' => 15, 'updated_at' => now()->subDays(42)],
         ]);
 
         $this->assertCount(15, Models\Cart::all());
 
-        $this->assertFalse(Models\Cart::all()->every(function(Models\Cart $cart) {
+        $this->assertFalse(Models\Cart::all()->every(function (Models\Cart $cart) {
             return now()->diffInDays($cart->updated_at) < 30;
         }));
 
@@ -149,7 +148,7 @@ class CartTest extends TestCase
 
         $this->assertCount(7, Models\Cart::all());
 
-        $this->assertTrue(Models\Cart::all()->every(function(Models\Cart $cart) {
+        $this->assertTrue(Models\Cart::all()->every(function (Models\Cart $cart) {
             return now()->diffInDays($cart->updated_at) < 30;
         }));
     }
@@ -160,68 +159,70 @@ class CartTest extends TestCase
     public function can_set_additional_data()
     {
         cart()->addProduct([
-            "plu" => 5
+            'plu' => 5,
         ]);
 
         cart()->setAdditionalData([
-            "comment" => "lorem ipsum"
+            'comment' => 'lorem ipsum',
         ]);
 
         cart()->setAdditionalData([
-            "key" => "value",
-            "key2" => "value2"
+            'key' => 'value',
+            'key2' => 'value2',
         ]);
 
         $cart = cart()->getCart();
 
-        $this->assertEquals("lorem ipsum", $cart->additional["comment"]);
-        $this->assertEquals("value", $cart->additional["key"]);
-        $this->assertEquals("value2", $cart->additional["key2"]);
+        $this->assertEquals('lorem ipsum', $cart->additional['comment']);
+        $this->assertEquals('value', $cart->additional['key']);
+        $this->assertEquals('value2', $cart->additional['key2']);
 
         cart()->setAdditionalData([
-            "comment" => "Peanut Allergy",
+            'comment' => 'Peanut Allergy',
         ]);
 
-        $this->assertEquals("Peanut Allergy", cart()->getCart()->additional["comment"]);
+        $this->assertEquals('Peanut Allergy', cart()->getCart()->additional['comment']);
     }
 
     /**
      * @test
      */
-    public function can_update_identifier(){
+    public function can_update_identifier()
+    {
         $customerId = 10;
         $identifier = md5($customerId);
 
         cart()->addProduct([
-            "plu" => 5
+            'plu' => 5,
         ]);
 
         cart()->updateIdentifier($identifier);
 
         $this->assertEquals($identifier, cart()->identifier);
-        $this->assertEquals($identifier, session("cart_identifier"));
+        $this->assertEquals($identifier, session('cart_identifier'));
     }
 
     /**
      * @test
      */
-    public function can_add_coupon_to_cart_items() {
+    public function can_add_coupon_to_cart_items()
+    {
         $coupon = cart()->couponsRepository->addCoupon([
-            "name" => "WELCOME10",
-            "discount_percent" => 0.10,
-            "ends_other_coupons" => false
+            'name' => 'WELCOME10',
+            'discount_percent' => 0.10,
+            'ends_other_coupons' => false,
         ]);
 
         $product = cart()->addProduct([
-            "plu" => 5,
-            "price" => 4.99,
-            "quantity" => 1
+            'plu' => 5,
+            'price' => 4.99,
+            'quantity' => 1,
         ]);
 
         $product2 = cart()->addProduct([
-            "plu" => 6,
-            "price" => 4.99,
-            "quantity" => 1
+            'plu' => 6,
+            'price' => 4.99,
+            'quantity' => 1,
         ]);
 
         cart()->itemsRepository->setCouponCode($product, $coupon->name);
@@ -234,116 +235,120 @@ class CartTest extends TestCase
     /**
      * @test
      */
-    public function can_set_shipping_method(){
+    public function can_set_shipping_method()
+    {
         $cart = cart();
         $cart->addProduct([
-            "plu" => 5
+            'plu' => 5,
         ]);
 
         $this->assertNull(cart()->getCart()->shipping_method);
 
         $truck = cart()->shippingRateRepository->addShippingRate([
-            "method" => "truck",
-            "price" => 20,
-            "minimum_cart_price" => 0
+            'method' => 'truck',
+            'price' => 20,
+            'minimum_cart_price' => 0,
         ]);
 
-        $cart->setShippingMethod("truck");
+        $cart->setShippingMethod('truck');
 
-        $this->assertEquals("truck", cart()->getCart()->shipping_method);
+        $this->assertEquals('truck', cart()->getCart()->shipping_method);
     }
 
     /**
      * @test
      */
-    public function get_total_price(){
+    public function get_total_price()
+    {
         $this->assertEquals(0, cart()->getCart()->grand_total);
 
         cart()->addProduct([
-            "plu" => 5,
-            "price" => 4.99,
-            "quantity" => 3,
-            "tax_percent" => 0.06
+            'plu' => 5,
+            'price' => 4.99,
+            'quantity' => 3,
+            'tax_percent' => 0.06,
         ]);
 
         $this->assertEquals(14.97, round(cart()->getCart()->grand_total, 2));
         $this->assertEquals(14.12, round(cart()->getCart()->sub_total, 2));
         $this->assertEquals(0.85, round(cart()->getCart()->tax_total, 2));
     }
+
     /**
      * @test
      */
-    public function can_get_best_shipping_rate_for_cart(){
+    public function can_get_best_shipping_rate_for_cart()
+    {
         $truck = cart()->shippingRateRepository->addShippingRate([
-            "method" => "truck",
-            "price" => 20,
-            "minimum_cart_price" => 0
+            'method' => 'truck',
+            'price' => 20,
+            'minimum_cart_price' => 0,
         ]);
         $truck2 = cart()->shippingRateRepository->addShippingRate([
-            "method" => "truck",
-            "price" => 10,
-            "minimum_cart_price" => 50
+            'method' => 'truck',
+            'price' => 10,
+            'minimum_cart_price' => 50,
         ]);
         $truck3 = cart()->shippingRateRepository->addShippingRate([
-            "method" => "truck",
-            "price" => 0,
-            "minimum_cart_price" => 100
+            'method' => 'truck',
+            'price' => 0,
+            'minimum_cart_price' => 100,
         ]);
 
         cart()->shippingRateRepository->addShippingRate([
-            "method" => "plane",
-            "price" => 25,
-            "minimum_cart_price" => 110
+            'method' => 'plane',
+            'price' => 25,
+            'minimum_cart_price' => 110,
         ]);
 
-        cart()->setShippingMethod("truck");
+        cart()->setShippingMethod('truck');
 
-        $this->assertCount(3, cart()->shippingRateRepository->shippingRatesForMethod("truck"));
+        $this->assertCount(3, cart()->shippingRateRepository->shippingRatesForMethod('truck'));
 
         cart()->addProduct([
-            "plu" => 5,
-            "price" => 5,
-            "quantity" => 1
+            'plu' => 5,
+            'price' => 5,
+            'quantity' => 1,
         ]);
 
         $this->assertEquals($truck->price, cart()->getShippingRate()->price);
 
         cart()->addProduct([
-            "plu" => 2,
-            "price" => 45,
-            "quantity" => 1
+            'plu' => 2,
+            'price' => 45,
+            'quantity' => 1,
         ]);
 
         $this->assertEquals($truck2->price, cart()->getShippingRate()->price);
 
         cart()->addProduct([
-            "plu" => 3,
-            "price" => 15,
-            "quantity" => 1
+            'plu' => 3,
+            'price' => 15,
+            'quantity' => 1,
         ]);
 
         $this->assertEquals($truck2->price, cart()->getShippingRate()->price);
 
         cart()->addProduct([
-            "plu" => 1,
-            "price" => 34,
-            "quantity" => 1
+            'plu' => 1,
+            'price' => 34,
+            'quantity' => 1,
         ]);
 
         $this->assertEquals($truck2->price, cart()->getShippingRate()->price);
 
         cart()->addProduct([
-            "plu" => 6,
-            "price" => 2,
-            "quantity" => 1
+            'plu' => 6,
+            'price' => 2,
+            'quantity' => 1,
         ]);
 
         $this->assertEquals($truck3->price, cart()->getShippingRate()->price);
 
         cart()->addProduct([
-            "plu" => 6,
-            "price" => 40,
-            "quantity" => 1
+            'plu' => 6,
+            'price' => 40,
+            'quantity' => 1,
         ]);
 
         $this->assertEquals($truck3->price, cart()->getShippingRate()->price);
@@ -352,29 +357,30 @@ class CartTest extends TestCase
     /**
      * @test
      */
-    public function can_add_coupon_and_is_coupon_applied_correctly(){
+    public function can_add_coupon_and_is_coupon_applied_correctly()
+    {
         $frappucino = [
-            "plu" => 5,
-            "price" => 49.99,
-            "quantity" => 1
+            'plu' => 5,
+            'price' => 49.99,
+            'quantity' => 1,
         ];
 
         $machiato = [
-            "plu" => 7,
-            "price" => 12.99,
-            "quantity" => 1
+            'plu' => 7,
+            'price' => 12.99,
+            'quantity' => 1,
         ];
 
         $espresso = [
-            "plu" => 3,
-            "price" => 4.95,
-            "quantity" => 1
+            'plu' => 3,
+            'price' => 4.95,
+            'quantity' => 1,
         ];
 
         $cookie = [
-            "plu" => 9,
-            "price" => 0.95,
-            "quantity" => 1
+            'plu' => 9,
+            'price' => 0.95,
+            'quantity' => 1,
         ];
 
         // The Mocha Cookie Crumble Frappcino Starbucks didn't give me.
@@ -383,22 +389,22 @@ class CartTest extends TestCase
         $this->assertEquals(49.99, cart()->getCart()->grand_total);
 
         $welcome125 = cart()->couponsRepository->addCoupon([
-            "name" => "WELCOME125",
-            "coupon_type" => CouponTypes::PERCENT,
-            "discount_percent" => 0.125
+            'name' => 'WELCOME125',
+            'coupon_type' => CouponTypes::PERCENT,
+            'discount_percent' => 0.125,
         ]);
 
         $freeCookies = cart()->couponsRepository->addCoupon([
-            "name" => "FREECOOKIE",
-            "coupon_type" => CouponTypes::AMOUNT,
-            "discount_amount" => 0.95,
-            "conditional" => true,
-            "conditions" => collect([
-                "cart_contains_plus" => [
-                    [$frappucino["plu"]],
-                    [$machiato["plu"], $espresso["plu"]]
-                ]
-            ])
+            'name' => 'FREECOOKIE',
+            'coupon_type' => CouponTypes::AMOUNT,
+            'discount_amount' => 0.95,
+            'conditional' => true,
+            'conditions' => collect([
+                'cart_contains_plus' => [
+                    [$frappucino['plu']],
+                    [$machiato['plu'], $espresso['plu']],
+                ],
+            ]),
         ]);
 
         cart()->addCoupon($welcome125);
@@ -411,55 +417,56 @@ class CartTest extends TestCase
 
         cart()->addProduct($frappucino);
 
-        $this->assertEquals($frappucino["price"], cart()->getCart()->grand_total);
+        $this->assertEquals($frappucino['price'], cart()->getCart()->grand_total);
 
         cart()->addProduct($cookie);
 
-        $this->assertEquals(round($frappucino["price"] + $cookie["price"], 4), cart()->getCart()->grand_total);
+        $this->assertEquals(round($frappucino['price'] + $cookie['price'], 4), cart()->getCart()->grand_total);
 
         cart()->addCoupon($freeCookies);
 
-        $this->assertEquals($frappucino["price"], cart()->getCart()->grand_total);
+        $this->assertEquals($frappucino['price'], cart()->getCart()->grand_total);
 
         cart()->destroy();
 
         cart()->addProduct($machiato);
 
-        $this->assertEquals($machiato["price"], cart()->getCart()->grand_total);
+        $this->assertEquals($machiato['price'], cart()->getCart()->grand_total);
 
         cart()->addProduct($cookie);
 
-        $this->assertEquals($machiato["price"] + $cookie["price"], cart()->getCart()->grand_total);
+        $this->assertEquals($machiato['price'] + $cookie['price'], cart()->getCart()->grand_total);
 
         cart()->addCoupon($freeCookies);
 
-        $this->assertEquals($machiato["price"] + $cookie["price"], cart()->getCart()->grand_total);
+        $this->assertEquals($machiato['price'] + $cookie['price'], cart()->getCart()->grand_total);
 
         cart()->addProduct($espresso);
 
-        $this->assertEquals($espresso["price"] + $machiato["price"], cart()->getCart()->grand_total);
+        $this->assertEquals($espresso['price'] + $machiato['price'], cart()->getCart()->grand_total);
     }
 
     /**
      * @test
      */
-    public function can_add_coupon_to_cart_item_and_is_coupon_calculated_correctly(){
+    public function can_add_coupon_to_cart_item_and_is_coupon_calculated_correctly()
+    {
         $cookie = [
-            "plu" => 9,
-            "price" => 0.95,
-            "quantity" => 1
+            'plu' => 9,
+            'price' => 0.95,
+            'quantity' => 1,
         ];
 
         $buyTwoGetOneFree = cart()->couponsRepository->addCoupon([
-            "name" => "342",
-            "coupon_type" => CouponTypes::STEP,
-            "discount_quantity" => 1,
-            "discount_step" => 2,
-            "conditional" => true,
-            "conditions" => [
-                "applies_to" => [$cookie["plu"]]
+            'name' => '342',
+            'coupon_type' => CouponTypes::STEP,
+            'discount_quantity' => 1,
+            'discount_step' => 2,
+            'conditional' => true,
+            'conditions' => [
+                'applies_to' => [$cookie['plu']],
             ],
-            "ends_other_coupons" => false
+            'ends_other_coupons' => false,
         ]);
 
         cart()->addProduct($cookie);
@@ -474,10 +481,8 @@ class CartTest extends TestCase
                 ->toArray()
         );
 
-
         $this->assertEquals(0, cart()->getCart()->discount);
         $this->assertEquals(1.90, cart()->getCart()->grand_total);
-
 
         cart()->destroy();
 
@@ -497,18 +502,18 @@ class CartTest extends TestCase
         cart()->destroy();
 
         $product = cart()->addProduct([
-            "plu" => 7,
-            "price" => 24.95,
-            "quantity" => 2
+            'plu' => 7,
+            'price' => 24.95,
+            'quantity' => 2,
         ]);
 
         $this->assertEqualsWithDelta(49.90, (float) cart()->getCart()->grand_total, 0.005);
 
         $welcome10 = cart()->couponsRepository->addCoupon([
-            "name" => "WELCOME10",
-            "coupon_type" => CouponTypes::PERCENT,
-            "discount_percent" => 0.1,
-            "ends_other_coupons" => false
+            'name' => 'WELCOME10',
+            'coupon_type' => CouponTypes::PERCENT,
+            'discount_percent' => 0.1,
+            'ends_other_coupons' => false,
         ]);
 
         cart()->itemsRepository->setCouponCode($product, $welcome10->name);
@@ -518,16 +523,16 @@ class CartTest extends TestCase
         cart()->destroy();
 
         $discount10 = cart()->couponsRepository->addCoupon([
-            "name" => "DISCOUNT10",
-            "coupon_type" => CouponTypes::AMOUNT,
-            "discount_amount" => 10,
-            "ends_other_coupons" => false
+            'name' => 'DISCOUNT10',
+            'coupon_type' => CouponTypes::AMOUNT,
+            'discount_amount' => 10,
+            'ends_other_coupons' => false,
         ]);
 
         $product = cart()->addProduct([
-            "plu" => 7,
-            "price" => 24.95,
-            "quantity" => 2
+            'plu' => 7,
+            'price' => 24.95,
+            'quantity' => 2,
         ]);
 
         $this->assertEqualsWithDelta(49.90, (float) cart()->getCart()->grand_total, 0.005);
@@ -540,13 +545,14 @@ class CartTest extends TestCase
     /**
      * @test
      */
-    public function does_throw_null_pointer_exception_when_cart_gets_cleaned(){
+    public function does_throw_null_pointer_exception_when_cart_gets_cleaned()
+    {
         cart()->addProduct([
-            "plu" => 5
+            'plu' => 5,
         ]);
 
         cart()->getCart()->update([
-            "updated_at" => now()->subDays(40)
+            'updated_at' => now()->subDays(40),
         ]);
 
         $id = cart()->identifier;
@@ -554,7 +560,7 @@ class CartTest extends TestCase
         Models\Cart::clean();
 
         cart()->addProduct([
-            "plu" => 5
+            'plu' => 5,
         ]);
         $this->assertCount(1, cart()->items());
         $this->assertNotEquals($id, cart()->identifier);
@@ -563,10 +569,11 @@ class CartTest extends TestCase
     /**
      * @test
      */
-    public function can_restore_cart(){
+    public function can_restore_cart()
+    {
         $cart = new Cart();
         $cart->addProduct([
-            "plu" => 4
+            'plu' => 4,
         ]);
 
         $this->assertCount(1, Models\Cart::all());
@@ -598,7 +605,7 @@ class CartTest extends TestCase
         $this->assertCount(0, $cart->getItems());
 
         $item = $cart->addProduct([
-            "plu" => 5
+            'plu' => 5,
         ]);
 
         $this->assertCount(1, $cart->getItems($cart->id));
@@ -611,47 +618,48 @@ class CartTest extends TestCase
     /**
      * @test
      */
-    public function auto_merge_products_if_possible(){
+    public function auto_merge_products_if_possible()
+    {
         $product = [
-            "plu" => 6,
-            "quantity" => 2,
-            "additional" => [
-                "comment" => "abc"
-            ]
+            'plu' => 6,
+            'quantity' => 2,
+            'additional' => [
+                'comment' => 'abc',
+            ],
         ];
 
         $product2 = [
-            "plu" => 6,
-            "quantity" => 2,
-            "additional" => [
-                "comment" => "def"
-            ]
+            'plu' => 6,
+            'quantity' => 2,
+            'additional' => [
+                'comment' => 'def',
+            ],
         ];
 
         $product3 = [
-            "plu" => 6,
-            "quantity" => 6,
-            "additional" => [
-                "comment" => "def"
-            ]
+            'plu' => 6,
+            'quantity' => 6,
+            'additional' => [
+                'comment' => 'def',
+            ],
         ];
 
         $product4 = [
-            "plu" => 6,
-            "type" => 1,
+            'plu' => 6,
+            'type' => 1,
         ];
 
         $product5 = [
-            "plu" => 7,
-            "type" => 1,
+            'plu' => 7,
+            'type' => 1,
         ];
 
         $product6 = [
-            "plu" => 6,
-            "quantity" => 1,
-            "additional" => [
-                "comment" => "abc"
-            ]
+            'plu' => 6,
+            'quantity' => 1,
+            'additional' => [
+                'comment' => 'abc',
+            ],
         ];
 
         $cart = cart();
@@ -690,12 +698,12 @@ class CartTest extends TestCase
         $this->assertCount(5, $cart->items());
 
         $product7 = [
-            "plu" => 5,
-            "quantity" => 2,
-            "price" => 4.95,
-            "additional" => [
-                "comment" => "abc"
-            ]
+            'plu' => 5,
+            'quantity' => 2,
+            'price' => 4.95,
+            'additional' => [
+                'comment' => 'abc',
+            ],
         ];
 
         cart()->destroy();
@@ -714,29 +722,30 @@ class CartTest extends TestCase
     /**
      * @test
      */
-    public function get_cart_items_as_a_tree_structure(){
+    public function get_cart_items_as_a_tree_structure()
+    {
         $parent = cart()->addProduct([
-            "plu" => 5,
-            "price" => 2,
-            "quantity" => 6
+            'plu' => 5,
+            'price' => 2,
+            'quantity' => 6,
         ]);
 
         cart()->addProduct([
-            "plu" => 6,
-            "quantity" => 1,
-            "parent_id" => $parent->id
+            'plu' => 6,
+            'quantity' => 1,
+            'parent_id' => $parent->id,
         ]);
 
         cart()->addProduct([
-            "plu" => 7,
-            "quantity" => 1,
-            "parent_id" => $parent->id
+            'plu' => 7,
+            'quantity' => 1,
+            'parent_id' => $parent->id,
         ]);
 
         cart()->addProduct([
-            "plu" => 8,
-            "quantity" => 1,
-            "parent_id" => $parent->id
+            'plu' => 8,
+            'quantity' => 1,
+            'parent_id' => $parent->id,
         ]);
 
         $tree = cart()->itemsTree();
@@ -749,12 +758,13 @@ class CartTest extends TestCase
     /**
      * @test
      */
-    public function does_price_update_after_deleting_a_cart_item(){
+    public function does_price_update_after_deleting_a_cart_item()
+    {
         $cart = cart();
         $product = $cart->addProduct([
-            "plu" => 5,
-            "price" => 9.95,
-            "quantity" => 2
+            'plu' => 5,
+            'price' => 9.95,
+            'quantity' => 2,
         ]);
 
         $this->assertEqualsWithDelta(19.90, (float) $cart->getCart()->grand_total, 0.005);
@@ -767,12 +777,13 @@ class CartTest extends TestCase
     /**
      * @test
      */
-    public function does_updating_cart_item_cause_price_update_in_cart(){
+    public function does_updating_cart_item_cause_price_update_in_cart()
+    {
         $cart = cart();
         $item = $cart->addProduct([
-            "plu" => 5,
-            "price" => 9.95,
-            "quantity" => 1
+            'plu' => 5,
+            'price' => 9.95,
+            'quantity' => 1,
         ]);
 
         $this->assertEqualsWithDelta(9.95, $cart->getCart()->grand_total, 0.005);
@@ -789,38 +800,39 @@ class CartTest extends TestCase
     /**
      * @test
      */
-    public function can_get_all_applied_coupons(){
+    public function can_get_all_applied_coupons()
+    {
         $cart = cart();
 
         $coupon = $cart->couponsRepository->addCoupon([
-            "name" => "GOEDEBUREN",
-            "coupon_type" => CouponTypes::AMOUNT,
-            "discount_amount" => 5,
-            "ends_other_coupons" => false
+            'name' => 'GOEDEBUREN',
+            'coupon_type' => CouponTypes::AMOUNT,
+            'discount_amount' => 5,
+            'ends_other_coupons' => false,
         ]);
 
         $cartCoupon = $cart->couponsRepository->addCoupon([
-            "name" => "SHIP_IT_TO_ME",
-            "free_shipping" => true
+            'name' => 'SHIP_IT_TO_ME',
+            'free_shipping' => true,
         ]);
 
         $coupon2 = $cart->couponsRepository->addCoupon([
-            "name" => "DISCOUNT_60%",
-            "coupon_type" => CouponTypes::PERCENT,
-            "discount_amount" => .6,
-            "ends_other_coupons" => true
+            'name' => 'DISCOUNT_60%',
+            'coupon_type' => CouponTypes::PERCENT,
+            'discount_amount' => .6,
+            'ends_other_coupons' => true,
         ]);
 
         $item = $cart->addProduct([
-            "plu" => 5,
-            "price" => 10,
-            "quantity" => 1
+            'plu' => 5,
+            'price' => 10,
+            'quantity' => 1,
         ]);
 
         $item2 = $cart->addProduct([
-            "plu" => 6,
-            "price" => 15,
-            "quantity" => 1
+            'plu' => 6,
+            'price' => 15,
+            'quantity' => 1,
         ]);
 
         $this->assertCount(0, $cart->getAllCouponsOnCart());
@@ -843,30 +855,31 @@ class CartTest extends TestCase
     /**
      * @test
      */
-    public function can_empty_cart(){
-        $identifier = md5("lmao");
+    public function can_empty_cart()
+    {
+        $identifier = md5('lmao');
         $cart = cart();
         $cart->updateIdentifier($identifier);
 
         $this->assertEquals($identifier, $cart->identifier);
 
         $cart->addProduct([
-            "plu" => 5,
-            "price" => 4.99,
-            "quantity" => 1,
-            "type" => ItemTypes::PLU,
+            'plu' => 5,
+            'price' => 4.99,
+            'quantity' => 1,
+            'type' => ItemTypes::PLU,
         ]);
         $cart->addProduct([
-            "plu" => 6,
-            "price" => 9.99,
-            "quantity" => 1,
-            "type" => ItemTypes::PLU,
+            'plu' => 6,
+            'price' => 9.99,
+            'quantity' => 1,
+            'type' => ItemTypes::PLU,
         ]);
         $cart->addProduct([
-            "plu" => 7,
-            "price" => 2.49,
-            "quantity" => 1,
-            "type" => ItemTypes::PLU,
+            'plu' => 7,
+            'price' => 2.49,
+            'quantity' => 1,
+            'type' => ItemTypes::PLU,
         ]);
 
         $this->assertCount(3, $cart->items());
@@ -885,20 +898,21 @@ class CartTest extends TestCase
     /**
      * @test
      */
-    public function can_empty_cart_with_coupon_code(){
-        $cart =  cart();
+    public function can_empty_cart_with_coupon_code()
+    {
+        $cart = cart();
 
         $cart->addProduct([
-            "plu" => 7,
-            "price" => 2.49,
-            "quantity" => 1,
-            "type" => ItemTypes::PLU,
+            'plu' => 7,
+            'price' => 2.49,
+            'quantity' => 1,
+            'type' => ItemTypes::PLU,
         ]);
 
         $coupon = $cart->couponsRepository->addCoupon([
-            "name" => "10PROCENT",
-            "coupon_type" => CouponTypes::PERCENT,
-            "discount_percent" => 0.10,
+            'name' => '10PROCENT',
+            'coupon_type' => CouponTypes::PERCENT,
+            'discount_percent' => 0.10,
         ]);
 
         $cart->addCoupon($coupon);
@@ -917,41 +931,42 @@ class CartTest extends TestCase
     /**
      * @test
      */
-    public function can_get_subproducts_of_type(){
+    public function can_get_subproducts_of_type()
+    {
         $cart = cart();
         $parent = $cart->addProduct([
-            "plu" => 1,
-            "type" => ItemTypes::PLU
+            'plu' => 1,
+            'type' => ItemTypes::PLU,
         ]);
         $cart->addProduct([
-            "plu" => 2,
-            "parent_id" => $parent->id,
-            "type" => ItemTypes::PLU
+            'plu' => 2,
+            'parent_id' => $parent->id,
+            'type' => ItemTypes::PLU,
         ]);
         $cart->addProduct([
-            "plu" => 3,
-            "parent_id" => $parent->id,
-            "type" => ItemTypes::MENU
+            'plu' => 3,
+            'parent_id' => $parent->id,
+            'type' => ItemTypes::MENU,
         ]);
         $cart->addProduct([
-            "plu" => 4,
-            "parent_id" => $parent->id,
-            "type" => ItemTypes::WARRANTY
+            'plu' => 4,
+            'parent_id' => $parent->id,
+            'type' => ItemTypes::WARRANTY,
         ]);
         $cart->addProduct([
-            "plu" => 5,
-            "parent_id" => $parent->id,
-            "type" => ItemTypes::WARRANTY
+            'plu' => 5,
+            'parent_id' => $parent->id,
+            'type' => ItemTypes::WARRANTY,
         ]);
         $cart->addProduct([
-            "plu" => 6,
-            "parent_id" => $parent->id,
-            "type" => ItemTypes::WARRANTY
+            'plu' => 6,
+            'parent_id' => $parent->id,
+            'type' => ItemTypes::WARRANTY,
         ]);
         $cart->addProduct([
-            "plu" => 7,
-            "parent_id" => $parent->id,
-            "type" => ItemTypes::RENT
+            'plu' => 7,
+            'parent_id' => $parent->id,
+            'type' => ItemTypes::RENT,
         ]);
 
         $this->assertCount(1, $parent->getSubproductsOfType(ItemTypes::PLU));
@@ -971,25 +986,26 @@ class CartTest extends TestCase
     /**
      * @test
      */
-    public function does_shipping_rate_affect_total_price(){
+    public function does_shipping_rate_affect_total_price()
+    {
         $cart = cart();
 
         $truck = cart()->shippingRateRepository->addShippingRate([
-            "method" => "truck",
-            "price" => 20,
-            "minimum_cart_price" => 0
+            'method' => 'truck',
+            'price' => 20,
+            'minimum_cart_price' => 0,
         ]);
         $truck2 = cart()->shippingRateRepository->addShippingRate([
-            "method" => "truck",
-            "price" => 10,
-            "minimum_cart_price" => 50
+            'method' => 'truck',
+            'price' => 10,
+            'minimum_cart_price' => 50,
         ]);
 
         $cart->addProduct([
-            "plu" => 1,
-            "quantity" => 1,
-            "price" => 5,
-            "type" => ItemTypes::PLU
+            'plu' => 1,
+            'quantity' => 1,
+            'price' => 5,
+            'type' => ItemTypes::PLU,
         ]);
 
         $cart->setShippingMethod($truck->method);
@@ -999,10 +1015,10 @@ class CartTest extends TestCase
         $this->assertEquals($truck->price + 5, $cart->getCart()->grand_total);
 
         $cart->addProduct([
-            "plu" => 2,
-            "quantity" => 1,
-            "price" => 45,
-            "type" => ItemTypes::PLU,
+            'plu' => 2,
+            'quantity' => 1,
+            'price' => 45,
+            'type' => ItemTypes::PLU,
         ]);
 
         $this->assertEquals($truck2->price + 50, $cart->getCart()->grand_total);
@@ -1017,20 +1033,21 @@ class CartTest extends TestCase
     /**
      * @test
      */
-    public function removing_shipping_method_lowers_total_price_if_necessary(){
+    public function removing_shipping_method_lowers_total_price_if_necessary()
+    {
         $cart = cart();
 
         $truck = $cart->shippingRateRepository->addShippingRate([
-            "method" => "truck",
-            "price" => 20,
-            "minimum_cart_price" => 0
+            'method' => 'truck',
+            'price' => 20,
+            'minimum_cart_price' => 0,
         ]);
 
         $cart->addProduct([
-            "plu" => 1,
-            "quantity" => 1,
-            "price" => 5,
-            "type" => ItemTypes::PLU
+            'plu' => 1,
+            'quantity' => 1,
+            'price' => 5,
+            'type' => ItemTypes::PLU,
         ]);
 
         $cart->setShippingMethod($truck->method);
@@ -1041,7 +1058,6 @@ class CartTest extends TestCase
 
         $this->assertEquals(5, $cart->getCart()->grand_total);
     }
-
 
     /**
      * @test
@@ -1055,39 +1071,39 @@ class CartTest extends TestCase
 
         // add product
         $sushi = [
-            "plu" => 1,
-            "quantity" => 1,
-            "price" => 4.95,
-            "type" => ItemTypes::PLU
+            'plu' => 1,
+            'quantity' => 1,
+            'price' => 4.95,
+            'type' => ItemTypes::PLU,
         ];
 
         $cart->addProduct($sushi);
 
         // Login
-        $cart->updateIdentifier("logged_in");
+        $cart->updateIdentifier('logged_in');
 
-        $this->assertCount(1, cart("logged_in")->items());
+        $this->assertCount(1, cart('logged_in')->items());
 
         // Logout
-        $loggedOut = cart("logged_out_2");
+        $loggedOut = cart('logged_out_2');
         $this->assertCount(0, $loggedOut->items());
 
         // add product with subproducts
         $overpriced_sauce = [
-            "plu" => 2,
-            "quantity" => 1,
-            "price" => 999.99,
-            "type" => ItemTypes::PLU
+            'plu' => 2,
+            'quantity' => 1,
+            'price' => 999.99,
+            'type' => ItemTypes::PLU,
         ];
 
         $bottle = $loggedOut->addProduct($overpriced_sauce);
 
         $louis_vuitton_bottle = [
-            "plu"      => 3,
-            "quantity" => 1,
-            "price"    => 9999.99,
-            "type"     => ItemTypes::WARRANTY,
-            "parent_id" => $bottle->id
+            'plu' => 3,
+            'quantity' => 1,
+            'price' => 9999.99,
+            'type' => ItemTypes::WARRANTY,
+            'parent_id' => $bottle->id,
         ];
         $loggedOut->addProduct($louis_vuitton_bottle);
 
@@ -1095,7 +1111,7 @@ class CartTest extends TestCase
 
         // Log back in
         // Fetch cart from database again
-        $cart = cart("logged_in");
+        $cart = cart('logged_in');
         $finalCart = $cart->merge($loggedOut);
 
         $this->assertEquals(1, $finalCart->itemsTree()[1]->quantity);

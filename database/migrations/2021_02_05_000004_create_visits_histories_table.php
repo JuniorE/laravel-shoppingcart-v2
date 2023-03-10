@@ -1,10 +1,11 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
-class CreateVisitsHistoriesTable extends Migration {
+class CreateVisitsHistoriesTable extends Migration
+{
     /**
      * Run the migration
      *
@@ -12,11 +13,11 @@ class CreateVisitsHistoriesTable extends Migration {
      */
     public function up()
     {
-        Schema::create('visits_histories', function(Blueprint $table) {
+        Schema::create('visits_histories', function (Blueprint $table) {
             $table->engine = 'InnoDB';
             $table->increments('id');
-            $table->integer("cart_id");
-            $table->json("visits");
+            $table->integer('cart_id');
+            $table->json('visits');
             $table->timestamps();
         });
     }

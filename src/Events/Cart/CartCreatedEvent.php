@@ -1,8 +1,6 @@
 <?php
 
-
 namespace juniorE\ShoppingCart\Events\Cart;
-
 
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Foundation\Events\Dispatchable;
@@ -14,15 +12,12 @@ class CartCreatedEvent
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     /**
-     * @var Cart $item
+     * @var Cart
      */
     public $item;
 
-
     /**
      * Create a new Event instance
-     *
-     * @param Cart $item
      */
     public function __construct(Cart $item)
     {

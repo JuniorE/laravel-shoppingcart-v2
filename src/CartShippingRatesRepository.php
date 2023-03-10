@@ -1,8 +1,6 @@
 <?php
 
-
 namespace juniorE\ShoppingCart;
-
 
 use Illuminate\Support\Collection;
 use juniorE\ShoppingCart\Data\Interfaces\CartShippingRatesDatabase;
@@ -10,10 +8,6 @@ use juniorE\ShoppingCart\Models\CartShippingRate;
 
 class CartShippingRatesRepository implements Contracts\CartShippingRatesRepository
 {
-    /**
-     * @param string $method
-     * @return Collection|CartShippingRate[]
-     */
     public function shippingRatesForMethod(string $method): Collection
     {
         return app(CartShippingRatesDatabase::class)->shippingRatesForMethod($method);

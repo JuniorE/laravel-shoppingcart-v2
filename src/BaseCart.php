@@ -1,8 +1,6 @@
 <?php
 
-
 namespace juniorE\ShoppingCart;
-
 
 use Hash;
 use Illuminate\Support\Collection;
@@ -12,7 +10,7 @@ use juniorE\ShoppingCart\Models\CartItem;
 
 abstract class BaseCart implements Contracts\Cart
 {
-    protected const SESSION_CART_IDENTIFIER="cart_identifier";
+    protected const SESSION_CART_IDENTIFIER = 'cart_identifier';
 
     /**
      * @var CartItemsRepository
@@ -23,7 +21,6 @@ abstract class BaseCart implements Contracts\Cart
      * @var CartCouponRepository
      */
     public $couponsRepository;
-
 
     /**
      * @var CartShippingRatesRepository
@@ -50,12 +47,10 @@ abstract class BaseCart implements Contracts\Cart
      */
     protected $coupons;
 
-
     /**
      * BaseCart constructor.
-     * @param string|null $identifier
      */
-    public function __construct(string $identifier=null)
+    public function __construct(string $identifier = null)
     {
         $this->restoreOrCreateIdentifier($identifier);
 
@@ -75,16 +70,14 @@ abstract class BaseCart implements Contracts\Cart
     /**
      * Restore or Create the cart using the Session Identifier
      *
-     * @param string|null $identifier
      *
      * @return string
      */
-    public function restoreOrCreateIdentifier(?string $identifier=null)
+    public function restoreOrCreateIdentifier(?string $identifier = null)
     {
         if ($identifier) {
             return $this->restore($identifier);
-        }
-        elseif (session(self::SESSION_CART_IDENTIFIER)) {
+        } elseif (session(self::SESSION_CART_IDENTIFIER)) {
             return $this->restore(session(self::SESSION_CART_IDENTIFIER));
         }
 
@@ -93,16 +86,13 @@ abstract class BaseCart implements Contracts\Cart
 
     /**
      * Restore cart by identifier
-     *
-     * @param string $identifier
-     * @return string
      */
     private function restore(string $identifier): string
     {
         $this->identifier = $identifier;
 
         $cart = app(CartDatabase::class)->getCart($this->identifier);
-        if (!$cart) {
+        if (! $cart) {
             return $this->create();
         }
 
@@ -115,8 +105,6 @@ abstract class BaseCart implements Contracts\Cart
 
     /**
      * Create Cart
-     *
-     * @return string
      */
     private function create(): string
     {
@@ -143,7 +131,7 @@ abstract class BaseCart implements Contracts\Cart
         return app(CartDatabase::class)->getCartItem($id);
     }
 
-    public function getItems(int $cartId=null)
+    public function getItems(int $cartId = null)
     {
         return app(CartDatabase::class)->getCartItems($cartId);
     }

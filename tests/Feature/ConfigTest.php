@@ -1,6 +1,5 @@
 <?php
 
-
 namespace juniorE\ShoppingCart\Tests\Feature;
 
 use juniorE\ShoppingCart\Data\Repositories\EloquentCartDatabase;
@@ -13,6 +12,6 @@ class ConfigTest extends TestCase
      */
     public function config_test()
     {
-        $this->assertEquals(EloquentCartDatabase::class, config("shoppingcart.database.implementation"));
+        $this->assertEquals(EloquentCartDatabase::class, config('shoppingcart.database.implementation'));
     }
 }

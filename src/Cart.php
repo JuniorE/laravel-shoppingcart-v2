@@ -1,8 +1,6 @@
 <?php
 
-
-    namespace juniorE\ShoppingCart;
-
+namespace juniorE\ShoppingCart;
 
     use Illuminate\Support\Collection;
     use juniorE\ShoppingCart\Data\Interfaces\CartCouponDatabase;
@@ -17,11 +15,11 @@
         public function addProduct(array $product, bool $forceNewLine = null): CartItem
         {
             if ($forceNewLine === null) {
-                $forceNewLine = !config('shoppingcart.merge_lines');
+                $forceNewLine = ! config('shoppingcart.merge_lines');
             }
 
             $product = collect($product)
-                ->merge(["cart_id" => $this->id])
+                ->merge(['cart_id' => $this->id])
                 ->toArray();
 
             if ($forceNewLine) {
@@ -35,8 +33,9 @@
         {
             $items = collect();
             foreach ($products as $product) {
-                $items->push($this->addProduct($product, !config('shoppingcart.merge_lines')));
+                $items->push($this->addProduct($product, ! config('shoppingcart.merge_lines')));
             }
+
             return $items;
         }
 
@@ -84,7 +83,6 @@
             return app(CartCouponDatabase::class)->getCoupons(self::getCart()->id);
         }
 
-
         public function setCheckoutMethod(string $checkoutMethod): void
         {
             $database = app(CartDatabase::class);
@@ -122,7 +120,7 @@
         public function updateIdentifier(string $identifier): void
         {
             $this->getCart()->update([
-                "identifier" => $identifier
+                'identifier' => $identifier,
             ]);
 
             $this->identifier = $identifier;
@@ -139,7 +137,7 @@
         public function getShippingRate()
         {
             $rates = $this->shippingRateRepository->shippingRatesForMethod($this->getCart()->shipping_method)
-                ->where("minimum_cart_price", "<=", $this->getCart()->sub_total + $this->getCart()->tax_total)
+                ->where('minimum_cart_price', '<=', $this->getCart()->sub_total + $this->getCart()->tax_total)
                 ->sortBy('minimum_cart_price');
 
             return $rates->last();
@@ -147,16 +145,18 @@
 
         public function contains(array $plus): bool
         {
-            $items = cart()->items()->map->only("plu")->flatten();
+            $items = cart()->items()->map->only('plu')->flatten();
             $success = true;
             foreach ($plus as $plu) {
-                if ( !$items->contains($plu)) {
+                if (! $items->contains($plu)) {
                     $success = false;
+
                     continue;
                 } else {
                     $success = true;
                 }
             }
+
             return $success;
         }
 
@@ -169,7 +169,7 @@
             $existingCartItem = $database->getCartItemByHash($hash);
 
             if ($existingCartItem) {
-                return $this->updateQuantity($existingCartItem, $existingCartItem->quantity + ($product["quantity"] ?? 0));
+                return $this->updateQuantity($existingCartItem, $existingCartItem->quantity + ($product['quantity'] ?? 0));
             } else {
                 return $this->createCartItem($product);
             }
@@ -202,7 +202,7 @@
             return app(CartDatabase::class)->getCartItemsTree($this->id);
         }
 
-        public function merge(\juniorE\ShoppingCart\Contracts\Cart $other): \juniorE\ShoppingCart\Contracts\Cart
+        public function merge(Contracts\Cart $other): Contracts\Cart
         {
             $other->itemsTree()->each(function ($item) {
                 $this->addItem($item);
@@ -216,12 +216,12 @@
             // add this product (insert parent id if exists)
             $newParent = $this->addProduct(
                 collect([
-                    "parent_id" => $parent ?? $product->parent_id,
-                    "additional" => $product->additional ?? [],
+                    'parent_id' => $parent ?? $product->parent_id,
+                    'additional' => $product->additional ?? [],
                 ])
                     ->merge(
                         collect($product->getAttributes())
-                            ->except(["id", "additional", "parent_id"])
+                            ->except(['id', 'additional', 'parent_id'])
                     )
                     ->toArray());
 

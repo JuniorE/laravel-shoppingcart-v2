@@ -1,6 +1,5 @@
 <?php
 
-
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use juniorE\ShoppingCart\Cart;
 use juniorE\ShoppingCart\Tests\TestCase;

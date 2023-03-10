@@ -1,8 +1,6 @@
 <?php
 
-
 namespace juniorE\ShoppingCart;
-
 
 use juniorE\ShoppingCart\Data\Interfaces\CartCouponDatabase;
 use juniorE\ShoppingCart\Data\Interfaces\CartItemDatabase;
@@ -10,7 +8,8 @@ use juniorE\ShoppingCart\Models\CartItem;
 
 class CartItemsRepository implements Contracts\CartItemsRepository
 {
-    public function setQuantity(CartItem $item, float $quantity, $updateSubproducts=false): void {
+    public function setQuantity(CartItem $item, float $quantity, $updateSubproducts = false): void
+    {
         $this->getDatabase()->setQuantity($item, $quantity, $updateSubproducts);
     }
 
@@ -27,7 +26,7 @@ class CartItemsRepository implements Contracts\CartItemsRepository
     public function setCouponCode(CartItem $item, string $code): void
     {
         $coupon = app(CartCouponDatabase::class)->getCoupon($code);
-        if (!$coupon) {
+        if (! $coupon) {
             return;
         }
 

@@ -1,8 +1,6 @@
 <?php
 
-
 namespace juniorE\ShoppingCart\Data\Repositories;
-
 
 use Carbon\Carbon;
 use juniorE\ShoppingCart\Data\Interfaces\CartCouponDatabase;
@@ -20,13 +18,14 @@ class EloquentCartCouponDatabase implements CartCouponDatabase
             if ($cartCoupon) {
                 $coupons->push($cartCoupon);
             }
+
             return CartCoupon::whereIn('name', $coupons)->get();
         }
+
         return CartCoupon::all();
     }
 
     /**
-     * @param string $coupon
      * @return CartCoupon|null
      */
     public function getCoupon(string $coupon)
@@ -42,28 +41,28 @@ class EloquentCartCouponDatabase implements CartCouponDatabase
     public function setName(CartCoupon $coupon, string $name): void
     {
         $coupon->update([
-            "name" => $name
+            'name' => $name,
         ]);
     }
 
     public function setDescription(CartCoupon $coupon, string $description): void
     {
         $coupon->update([
-            "description" => $description
+            'description' => $description,
         ]);
     }
 
     public function setStatus(CartCoupon $coupon, bool $status): void
     {
         $coupon->update([
-            "status" => $status
+            'status' => $status,
         ]);
     }
 
     public function setCouponType(CartCoupon $coupon, int $type): void
     {
         $coupon->update([
-            "coupon_type" => $type
+            'coupon_type' => $type,
         ]);
     }
 
@@ -74,7 +73,7 @@ class EloquentCartCouponDatabase implements CartCouponDatabase
         }
 
         $coupon->update([
-            "starts_from" => $start
+            'starts_from' => $start,
         ]);
     }
 
@@ -85,29 +84,29 @@ class EloquentCartCouponDatabase implements CartCouponDatabase
         }
 
         $coupon->update([
-            "ends_till" => $end
+            'ends_till' => $end,
         ]);
     }
 
     public function setUsagePerCustomer(CartCoupon $coupon, int $limit): void
     {
         $coupon->update([
-            "usage_per_customer" => $limit
+            'usage_per_customer' => $limit,
         ]);
     }
 
     public function setUsagePerCoupon(CartCoupon $coupon, int $limit): void
     {
         $coupon->update([
-            "uses_per_coupon" => $limit
+            'uses_per_coupon' => $limit,
         ]);
     }
 
     public function increaseUsedCounter(CartCoupon $coupon, int $amount = 1): void
     {
-        if ($amount < 0)
+        if ($amount < 0) {
             return;
-
+        }
 
         $count = $coupon->times_used + $amount;
         if ($count > $coupon->uses_per_coupon) {
@@ -115,71 +114,71 @@ class EloquentCartCouponDatabase implements CartCouponDatabase
         }
 
         $coupon->update([
-            "times_used" => $count
+            'times_used' => $count,
         ]);
     }
 
     public function setConditional(CartCoupon $coupon, bool $conditional): void
     {
         $coupon->update([
-            "conditional" => $conditional
+            'conditional' => $conditional,
         ]);
     }
 
     public function setConditions(CartCoupon $coupon, array $conditions): void
     {
         $coupon->update([
-            "conditions" => collect($coupon->conditions)
-                ->merge($conditions)
+            'conditions' => collect($coupon->conditions)
+                ->merge($conditions),
         ]);
     }
 
     public function setEndsOtherCoupons(CartCoupon $coupon, bool $endsOtherCoupons): void
     {
         $coupon->update([
-            "ends_other_coupons" => $endsOtherCoupons
+            'ends_other_coupons' => $endsOtherCoupons,
         ]);
     }
 
     public function setDiscountAmount(CartCoupon $coupon, float $amount): void
     {
         $coupon->update([
-            "discount_amount" => $amount
+            'discount_amount' => $amount,
         ]);
     }
 
     public function setDiscountPercent(CartCoupon $coupon, float $percent): void
     {
         $coupon->update([
-            "discount_percent" => $percent
+            'discount_percent' => $percent,
         ]);
     }
 
     public function setDiscountQuantity(CartCoupon $coupon, int $quantity): void
     {
         $coupon->update([
-            "discount_quantity" => $quantity
+            'discount_quantity' => $quantity,
         ]);
     }
 
     public function setDiscountStep(CartCoupon $coupon, int $step): void
     {
         $coupon->update([
-            "discount_step" => $step
+            'discount_step' => $step,
         ]);
     }
 
     public function setAppliesToShipping(CartCoupon $coupon, bool $applies): void
     {
         $coupon->update([
-            "apply_to_shipping" => $applies
+            'apply_to_shipping' => $applies,
         ]);
     }
 
     public function setFreeShipping(CartCoupon $coupon, bool $freeShipping): void
     {
         $coupon->update([
-            "free_shipping" => $freeShipping
+            'free_shipping' => $freeShipping,
         ]);
     }
 

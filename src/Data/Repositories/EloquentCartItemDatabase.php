@@ -1,8 +1,6 @@
 <?php
 
-
 namespace juniorE\ShoppingCart\Data\Repositories;
-
 
 use Closure;
 use juniorE\ShoppingCart\Data\Interfaces\CartDatabase;
@@ -19,11 +17,11 @@ class EloquentCartItemDatabase implements CartItemDatabase
         app(CartDatabase::class)->updateTotal($id);
     }
 
-    public function setQuantity(CartItem $item, float $quantity, $updateSubproducts=false): void
+    public function setQuantity(CartItem $item, float $quantity, $updateSubproducts = false): void
     {
         $old = $item->quantity;
         $item->update([
-            'quantity' => $quantity
+            'quantity' => $quantity,
         ]);
 
         if ($updateSubproducts instanceof Closure) {
@@ -36,22 +34,22 @@ class EloquentCartItemDatabase implements CartItemDatabase
     public function setParentCartItem(CartItem $item, int $parentId): void
     {
         $item->update([
-            "parent_id" => $parentId
+            'parent_id' => $parentId,
         ]);
     }
 
     public function setTaxPercent(CartItem $item, float $percent): void
     {
         $item->update([
-            "tax_percent" => $percent,
-            "tax_amount" => $item->price * $percent
+            'tax_percent' => $percent,
+            'tax_amount' => $item->price * $percent,
         ]);
     }
 
     public function setCouponCode(CartItem $item, string $code): void
     {
         $item->update([
-            "coupon_code" => $code
+            'coupon_code' => $code,
         ]);
 
         $this->updatePrices($item);
@@ -60,26 +58,26 @@ class EloquentCartItemDatabase implements CartItemDatabase
     public function setPrice(CartItem $item, float $price): void
     {
         $item->update([
-            "price" => $price,
-            "tax_amount" => $price * $item->tax_percent
+            'price' => $price,
+            'tax_amount' => $price * $item->tax_percent,
         ]);
     }
 
     public function setWeight(CartItem $item, float $weight): void
     {
         $item->update([
-            "weight" => $weight
+            'weight' => $weight,
         ]);
     }
 
     public function setPLU(CartItem $item, string $plu): void
     {
-        if (!$plu) {
+        if (! $plu) {
             return;
         }
 
         $item->update([
-            "plu" => $plu
+            'plu' => $plu,
         ]);
     }
 
@@ -87,27 +85,27 @@ class EloquentCartItemDatabase implements CartItemDatabase
     {
         $item->update([
             'additional' => collect($item->additional)
-                ->merge($data)
+                ->merge($data),
         ]);
     }
 
     private function updatePrices(CartItem $item)
     {
-        if (!$item->coupon) {
+        if (! $item->coupon) {
             return;
         }
 
         $discount = $item->coupon->discount($item->price * $item->quantity, $item->quantity, $item->price);
         $item->update([
-            "discount" => $discount
+            'discount' => $discount,
         ]);
 
         app(CartDatabase::class)->updateTotal();
     }
 
-    private function updateSubproducts(CartItem $item, float $multiplier, Closure $shouldUpdate=null)
+    private function updateSubproducts(CartItem $item, float $multiplier, Closure $shouldUpdate = null)
     {
-        $item->subproducts->map(function(CartItem $subproduct) use ($multiplier, $shouldUpdate) {
+        $item->subproducts->map(function (CartItem $subproduct) use ($multiplier, $shouldUpdate) {
             if (($shouldUpdate && $shouldUpdate($subproduct))
                 || $shouldUpdate === null) {
                 $subproduct->quantity = $subproduct->quantity * $multiplier;

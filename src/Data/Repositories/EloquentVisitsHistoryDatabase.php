@@ -1,8 +1,6 @@
 <?php
 
-
 namespace juniorE\ShoppingCart\Data\Repositories;
-
 
 use juniorE\ShoppingCart\Data\Interfaces\VisitsHistoryDatabase;
 use juniorE\ShoppingCart\Models\VisitsHistory;
@@ -10,24 +8,25 @@ use juniorE\ShoppingCart\Models\VisitsHistory;
 class EloquentVisitsHistoryDatabase implements VisitsHistoryDatabase
 {
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function markVisited(string $plu): void
     {
         $cart = cart();
-        $history = VisitsHistory::firstWhere("cart_id", $cart->id);
+        $history = VisitsHistory::firstWhere('cart_id', $cart->id);
 
-        if (!$history) {
+        if (! $history) {
             VisitsHistory::create([
-                "cart_id" => $cart->id,
-                "visits" => [$plu]
+                'cart_id' => $cart->id,
+                'visits' => [$plu],
             ]);
+
             return;
         }
 
         $history->update([
-            "visits" => collect($history->visits)
-                ->push($plu)->toArray()
+            'visits' => collect($history->visits)
+                ->push($plu)->toArray(),
         ]);
     }
 }

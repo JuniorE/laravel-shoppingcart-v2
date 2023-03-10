@@ -1,10 +1,11 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
-class AddCouponCodeRelationToCartsTable extends Migration {
+class AddCouponCodeRelationToCartsTable extends Migration
+{
     /**
      * Run the migration
      *
@@ -12,7 +13,7 @@ class AddCouponCodeRelationToCartsTable extends Migration {
      */
     public function up()
     {
-        Schema::table('carts', function(Blueprint $table) {
+        Schema::table('carts', function (Blueprint $table) {
             $table->foreign('coupon_code')->references('name')->on('cart_coupons')->onDelete('cascade');
         });
     }

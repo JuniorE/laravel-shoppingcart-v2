@@ -1,6 +1,5 @@
 <?php
 
-
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use juniorE\ShoppingCart\Enums\CouponTypes;
 use juniorE\ShoppingCart\Events\Cart\CartCreatedEvent;
@@ -24,11 +23,12 @@ class CartEventTests extends TestCase
     /**
      * @test
      */
-    public function cart_events(){
+    public function cart_events()
+    {
         Event::fake([
             CartCreatedEvent::class,
             CartUpdatedEvent::class,
-            CartDeletedEvent::class
+            CartDeletedEvent::class,
         ]);
 
         $cart = cart();
@@ -47,15 +47,16 @@ class CartEventTests extends TestCase
     /**
      * @test
      */
-    public function cart_item_events(){
+    public function cart_item_events()
+    {
         Event::fake([
             CartItemCreatedEvent::class,
             CartItemUpdatedEvent::class,
-            CartItemDeletedEvent::class
+            CartItemDeletedEvent::class,
         ]);
 
         $item = cart()->addProduct([
-            "plu" => 5
+            'plu' => 5,
         ]);
 
         Event::assertDispatchedTimes(CartItemCreatedEvent::class, 1);
@@ -72,17 +73,18 @@ class CartEventTests extends TestCase
     /**
      * @test
      */
-    public function cart_shipping_rate_events(){
+    public function cart_shipping_rate_events()
+    {
         Event::fake([
             CartShippingRateCreatedEvent::class,
             CartShippingRateUpdatedEvent::class,
-            CartShippingRateDeletedEvent::class
+            CartShippingRateDeletedEvent::class,
         ]);
 
         $truck = cart()->shippingRateRepository->addShippingRate([
-            "method" => "truck",
-            "price" => 10,
-            "minimum_cart_price" => 0
+            'method' => 'truck',
+            'price' => 10,
+            'minimum_cart_price' => 0,
         ]);
 
         Event::assertDispatchedTimes(CartShippingRateCreatedEvent::class, 1);
@@ -95,21 +97,22 @@ class CartEventTests extends TestCase
 
         Event::assertDispatchedTimes(CartShippingRateDeletedEvent::class, 1);
     }
-    
+
     /**
      * @test
      */
-    public function cart_coupon_events(){
+    public function cart_coupon_events()
+    {
         Event::fake([
             CartCouponCreatedEvent::class,
             CartCouponUpdatedEvent::class,
-            CartCouponDeletedEvent::class
+            CartCouponDeletedEvent::class,
         ]);
 
         $coupon = cart()->couponsRepository->addCoupon([
-            "name" => "WELCOME10",
-            "coupon_type" => CouponTypes::PERCENT,
-            "discount_percent" => 0.10
+            'name' => 'WELCOME10',
+            'coupon_type' => CouponTypes::PERCENT,
+            'discount_percent' => 0.10,
         ]);
 
         Event::assertDispatchedTimes(CartCouponCreatedEvent::class, 1);

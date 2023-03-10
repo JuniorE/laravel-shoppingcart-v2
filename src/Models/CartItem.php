@@ -1,8 +1,6 @@
 <?php
 
-
 namespace juniorE\ShoppingCart\Models;
-
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
@@ -14,7 +12,6 @@ use juniorE\ShoppingCart\Events\CartItems\CartItemUpdatedEvent;
 
 /**
  * Class CartItem
- * @package juniorE\ShoppingCart\Models
  *
  * @property int $id
  * @property int $cart_id
@@ -23,14 +20,14 @@ use juniorE\ShoppingCart\Events\CartItems\CartItemUpdatedEvent;
  * @property int $quantity
  * @property string $plu
  * @property int $type
- * @property double $weight
- * @property double $total_weight
+ * @property float $weight
+ * @property float $total_weight
  * @property string|null $coupon_code
- * @property double $price
- * @property double $total
- * @property double $discount
- * @property double|null $tax_percent
- * @property double|null $tax_amount
+ * @property float $price
+ * @property float $total
+ * @property float $discount
+ * @property float|null $tax_percent
+ * @property float|null $tax_amount
  * @property array|null $additional
  * @property Carbon $updated_at
  * @property Carbon $created_at
@@ -40,29 +37,28 @@ class CartItem extends Model
     protected $guarded = [];
 
     protected $casts = [
-        "price" => "float",
-        "cart_id" => "int",
-        "plu" => "int",
-        "type" => "int",
-        "additional" => "array",
-        "updated_at" => "datetime",
-        "created_at" => "datetime",
-
+        'price' => 'float',
+        'cart_id' => 'int',
+        'plu' => 'int',
+        'type' => 'int',
+        'additional' => 'array',
+        'updated_at' => 'datetime',
+        'created_at' => 'datetime',
     ];
 
     public function cart()
     {
-        return $this->belongsTo(\juniorE\ShoppingCart\Cart::class);
+        return $this->belongsTo(Cart::class);
     }
 
     public function subproducts()
     {
-        return $this->hasMany(CartItem::class, "parent_id");
+        return $this->hasMany(CartItem::class, 'parent_id');
     }
 
     public function parent()
     {
-        return $this->belongsTo(CartItem::class, "parent_id");
+        return $this->belongsTo(CartItem::class, 'parent_id');
     }
 
     public function coupon()
@@ -92,7 +88,7 @@ class CartItem extends Model
         if ($this->coupon_code && $this->discountable()) {
             $coupon = CartCoupon::firstWhere('name', $this->coupon_code);
 
-            if ($coupon && !collect("shoppingcart.discount_exempt_types")->contains($this->type)) {
+            if ($coupon && ! collect('shoppingcart.discount_exempt_types')->contains($this->type)) {
                 $this->discount = $coupon->discount($this->price * $this->quantity, $this->quantity, $this->price);
             }
         }
@@ -100,7 +96,7 @@ class CartItem extends Model
 
     public function discountable()
     {
-        return !collect(config('shoppingcart.discount_exempt_types'))
+        return ! collect(config('shoppingcart.discount_exempt_types'))
             ->contains($this->type);
     }
 
@@ -111,7 +107,7 @@ class CartItem extends Model
 
     public static function isTaxable($type)
     {
-        return !collect(config('shoppingcart.tax_exempt_types'))
+        return ! collect(config('shoppingcart.tax_exempt_types'))
             ->contains($type);
     }
 
@@ -124,12 +120,12 @@ class CartItem extends Model
     {
         $additional = collect($this->attributes)
             ->only([
-                'additional'
+                'additional',
             ])
             ->toArray();
 
-        if (isset($additional["additional"])) {
-            $additional = $additional["additional"];
+        if (isset($additional['additional'])) {
+            $additional = $additional['additional'];
 
             $additional = json_decode($additional, true);
 
@@ -147,7 +143,7 @@ class CartItem extends Model
 
     public function getSubproductsOfType($type)
     {
-        return $this->subproducts->filter(function(CartItem $product) use ($type) {
+        return $this->subproducts->filter(function (CartItem $product) use ($type) {
             return (string) $product->type === (string) $type;
         });
     }
@@ -156,30 +152,30 @@ class CartItem extends Model
     {
         parent::boot();
 
-        static::updated(function(CartItem $model) {
+        static::updated(function (CartItem $model) {
             event(new CartItemUpdatedEvent($model));
             app(CartDatabase::class)->updateTotal($model->cart_id);
         });
 
-        static::created(function(CartItem $model) {
+        static::created(function (CartItem $model) {
             event(new CartItemCreatedEvent($model));
             app(CartDatabase::class)->updateTotal($model->cart_id);
         });
 
-        static::deleted(function(CartItem $model) {
+        static::deleted(function (CartItem $model) {
             event(new CartItemDeletedEvent($model));
             app(CartDatabase::class)->updateTotal($model->cart_id);
         });
 
-        static::creating(function(CartItem $model) {
+        static::creating(function (CartItem $model) {
             $model->onUpdate();
         });
 
-        static::saving(function(CartItem $model) {
+        static::saving(function (CartItem $model) {
             $model->onUpdate();
         });
 
-        static::updating(function(CartItem $model) {
+        static::updating(function (CartItem $model) {
             $model->onUpdate();
         });
     }

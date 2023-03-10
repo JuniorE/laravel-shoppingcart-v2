@@ -1,10 +1,11 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
-class AddRowHashToCartItemsTable extends Migration {
+class AddRowHashToCartItemsTable extends Migration
+{
     /**
      * Run the migration
      *
@@ -12,8 +13,8 @@ class AddRowHashToCartItemsTable extends Migration {
      */
     public function up()
     {
-        Schema::table('cart_items', function(Blueprint $table) {
-            $table->string("row_hash")->nullable();
+        Schema::table('cart_items', function (Blueprint $table) {
+            $table->string('row_hash')->nullable();
         });
     }
 

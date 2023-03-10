@@ -1,10 +1,11 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
-class CreateCartCouponsTable extends Migration {
+class CreateCartCouponsTable extends Migration
+{
     /**
      * Run the migration
      *
@@ -12,7 +13,7 @@ class CreateCartCouponsTable extends Migration {
      */
     public function up()
     {
-        Schema::create('cart_coupons', function(Blueprint $table) {
+        Schema::create('cart_coupons', function (Blueprint $table) {
             $table->engine = 'InnoDB';
             $table->increments('id');
             $table->string('name')->unique();

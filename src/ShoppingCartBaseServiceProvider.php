@@ -1,11 +1,8 @@
 <?php
 
-
 namespace juniorE\ShoppingCart;
 
-
 use Carbon\Laravel\ServiceProvider;
-use Illuminate\Auth\Events\Login;
 use juniorE\ShoppingCart\Data\Interfaces\CartCouponDatabase;
 use juniorE\ShoppingCart\Data\Interfaces\CartDatabase;
 use juniorE\ShoppingCart\Data\Interfaces\CartItemDatabase;
@@ -16,7 +13,6 @@ use juniorE\ShoppingCart\Data\Repositories\EloquentCartDatabase;
 use juniorE\ShoppingCart\Data\Repositories\EloquentCartItemDatabase;
 use juniorE\ShoppingCart\Data\Repositories\EloquentCartShippingRatesDatabase;
 use juniorE\ShoppingCart\Data\Repositories\EloquentVisitsHistoryDatabase;
-use function Illuminate\Events\queueable;
 
 class ShoppingCartBaseServiceProvider extends ServiceProvider
 {
@@ -42,7 +38,7 @@ class ShoppingCartBaseServiceProvider extends ServiceProvider
 
     private function registerResources()
     {
-        $this->loadMigrationsFrom(__DIR__."/../database/migrations");
+        $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
     }
 
     private function publishResources()

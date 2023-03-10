@@ -1,6 +1,5 @@
 <?php
 
-
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use juniorE\ShoppingCart\BaseCart;
 use juniorE\ShoppingCart\Enums\CouponTypes;
@@ -22,7 +21,7 @@ class DatabaseTest extends TestCase
         $this->assertCount(0, Cart::all());
 
         Cart::create([
-            "identifier" => BaseCart::generateIdentifier(),
+            'identifier' => BaseCart::generateIdentifier(),
         ]);
 
         $this->assertCount(1, Cart::all());
@@ -36,9 +35,9 @@ class DatabaseTest extends TestCase
         $this->assertCount(0, CartCoupon::all());
 
         CartCoupon::create([
-            "name" => "WELCOME10",
-            "coupon_type" => CouponTypes::PERCENT,
-            "discount_percent" => 10.0000
+            'name' => 'WELCOME10',
+            'coupon_type' => CouponTypes::PERCENT,
+            'discount_percent' => 10.0000,
         ]);
 
         $this->assertCount(1, CartCoupon::all());
@@ -51,14 +50,13 @@ class DatabaseTest extends TestCase
     {
         $this->assertCount(0, CartItem::all());
 
-
         $cart = Cart::create([
-            "identifier" => BaseCart::generateIdentifier(),
+            'identifier' => BaseCart::generateIdentifier(),
         ]);
 
         CartItem::create([
-            "cart_id" => $cart->id,
-            "plu" => 1
+            'cart_id' => $cart->id,
+            'plu' => 1,
         ]);
 
         $this->assertCount(1, CartItem::all());
@@ -72,9 +70,9 @@ class DatabaseTest extends TestCase
         $this->assertCount(0, CartShippingRate::all());
 
         CartShippingRate::create([
-            "method" => "delivery",
-            "price" => 15.0000,
-            "minimum_cart_price" => 0.0000
+            'method' => 'delivery',
+            'price' => 15.0000,
+            'minimum_cart_price' => 0.0000,
         ]);
 
         $this->assertCount(1, CartShippingRate::all());
