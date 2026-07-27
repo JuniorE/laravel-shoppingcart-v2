@@ -148,59 +148,92 @@ class EloquentCartDatabase implements CartDatabase
         $this->updateTotal($cart->id);
     }
 
+    /**
+     * Totals are aggregated straight from the cart_items table: this runs on
+     * every cart item create/update/delete (model events), and any in-memory
+     * item snapshot may be stale by the time it fires.
+     */
     public function updateTotal(int $cartId = null): void
     {
-        if (! $cartId) {
-            $cart = cart();
-        } else {
-            $cart = cart(Cart::whereId($cartId)->first()->identifier);
+        $cart = $cartId
+            ? Cart::whereId($cartId)->first()
+            : cart()->getCart();
+
+        if (! $cart) {
+            return;
         }
 
-        $total = $cart->items()->reduce(function ($carry, CartItem $item) {
-            return $carry + $item->price * $item->quantity;
-        }, 0);
+        $totals = $this->cartTotals($cart->id);
 
-        $subtotal = $cart->items()->reduce(function ($carry, CartItem $item) {
-            if ($item->taxable()) {
-                return $carry + ($item->price * $item->quantity) / (1 + $item->tax_percent);
-            } else {
-                return $carry + ($item->price * $item->quantity);
-            }
-        }, 0);
+        $discount = $this->totalDiscount($cart, $totals->item_discounts, $totals->discountable_total);
 
-        $taxes = $total - $subtotal;
-
-        $discount = $this->totalDiscount();
-
-        $cart->getCart()->update([
-            'grand_total' => $total - round($discount, 2) + $cart->getDeliveryCost(),
-            'tax_total' => $taxes,
-            'sub_total' => $subtotal,
+        $cart->update([
+            'grand_total' => $totals->total - round($discount, 2) + cart($cart->identifier)->getDeliveryCost(),
+            'tax_total' => $totals->total - $totals->sub_total,
+            'sub_total' => $totals->sub_total,
             'discount' => round($discount, 2),
         ]);
     }
 
-    private function totalDiscount()
+    /**
+     * @return object{total: float, sub_total: float, item_discounts: float, discountable_total: float}
+     */
+    private function cartTotals(int $cartId)
     {
-        $cart = cart();
-        $coupon = $cart->getCart()->coupon;
+        [$taxableSql, $taxableBindings] = $this->typeNotExemptSql(config('shoppingcart.tax_exempt_types'));
+        [$discountableSql, $discountableBindings] = $this->typeNotExemptSql(config('shoppingcart.discount_exempt_types'));
 
-        $itemDiscounts = $cart->items()->reduce(function ($carry, CartItem $item) {
-            return $carry + $item->discount;
-        }, 0);
+        $totals = CartItem::query()
+            ->where('cart_id', $cartId)
+            ->selectRaw('COALESCE(SUM(price * quantity), 0) as total')
+            ->selectRaw(
+                "COALESCE(SUM(CASE WHEN {$taxableSql} THEN (price * quantity) / (1 + COALESCE(tax_percent, 0)) ELSE price * quantity END), 0) as sub_total",
+                $taxableBindings
+            )
+            ->selectRaw('COALESCE(SUM(discount), 0) as item_discounts')
+            ->selectRaw(
+                "COALESCE(SUM(CASE WHEN {$discountableSql} THEN total ELSE 0 END), 0) as discountable_total",
+                $discountableBindings
+            )
+            ->first();
 
-        if ($coupon) {
-            $total = $cart->items()->reduce(function ($carry, CartItem $item) {
-                if (! $item->discountable()) {
-                    return $carry;
-                }
+        $totals->total = (float) $totals->total;
+        $totals->sub_total = (float) $totals->sub_total;
+        $totals->item_discounts = (float) $totals->item_discounts;
+        $totals->discountable_total = (float) $totals->discountable_total;
 
-                return $carry + $item->total;
-            });
+        return $totals;
+    }
 
-            return $coupon->discount($total) + $itemDiscounts;
+    /**
+     * SQL condition matching CartItem::isTaxable()/discountable(): the type
+     * is not in the configured exempt list.
+     *
+     * @return array{0: string, 1: array}
+     */
+    private function typeNotExemptSql($exemptTypes): array
+    {
+        $types = collect($exemptTypes)->values();
+
+        if ($types->isEmpty()) {
+            return ['1 = 1', []];
         }
 
-        return 0 + $itemDiscounts;
+        $placeholders = $types->map(function () {
+            return '?';
+        })->implode(', ');
+
+        return ["type not in ({$placeholders})", $types->all()];
+    }
+
+    private function totalDiscount(Cart $cart, float $itemDiscounts, float $discountableTotal)
+    {
+        $coupon = $cart->coupon;
+
+        if (! $coupon) {
+            return $itemDiscounts;
+        }
+
+        return $coupon->discount($discountableTotal, 0, 0.0, cart($cart->identifier)) + $itemDiscounts;
     }
 }

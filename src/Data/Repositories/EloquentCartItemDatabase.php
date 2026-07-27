@@ -5,6 +5,7 @@ namespace juniorE\ShoppingCart\Data\Repositories;
 use Closure;
 use juniorE\ShoppingCart\Data\Interfaces\CartDatabase;
 use juniorE\ShoppingCart\Data\Interfaces\CartItemDatabase;
+use juniorE\ShoppingCart\Models\Cart;
 use juniorE\ShoppingCart\Models\CartItem;
 
 class EloquentCartItemDatabase implements CartItemDatabase
@@ -12,8 +13,16 @@ class EloquentCartItemDatabase implements CartItemDatabase
     public function emptyCart(int $id): void
     {
         CartItem::where('cart_id', $id)->delete();
-        app(CartDatabase::class)->removeCoupon();
-        app(CartDatabase::class)->removeShippingMethod();
+
+        // Clear coupon and shipping on the cart being emptied — the old
+        // removeCoupon()/removeShippingMethod() calls went through cart(),
+        // i.e. the SESSION cart: in webhook or queue contexts that cleared a
+        // different cart and minted a fresh cart row as a side effect.
+        Cart::whereId($id)->first()?->update([
+            'coupon_code' => null,
+            'shipping_method' => null,
+        ]);
+
         app(CartDatabase::class)->updateTotal($id);
     }
 
