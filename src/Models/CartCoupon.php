@@ -4,6 +4,7 @@ namespace juniorE\ShoppingCart\Models;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
+use juniorE\ShoppingCart\Cart as ShoppingCart;
 use juniorE\ShoppingCart\Enums\CouponTypes;
 use juniorE\ShoppingCart\Events\CartCoupon\CartCouponCreatedEvent;
 use juniorE\ShoppingCart\Events\CartCoupon\CartCouponDeletedEvent;
@@ -49,7 +50,7 @@ class CartCoupon extends Model
 
     ];
 
-    private function conditionsSatisfied(Cart $cart, CartItem $item = null)
+    private function conditionsSatisfied(ShoppingCart $cart, CartItem $item = null)
     {
         if ($this->conditional) {
             if (isset($this->conditions['cart_contains_plus'])) {
@@ -68,7 +69,7 @@ class CartCoupon extends Model
         return true;
     }
 
-    public function discount(float $price, int $quantity = 0, float $productPrice = 0.0, Cart $cart = null)
+    public function discount(float $price, int $quantity = 0, float $productPrice = 0.0, ?ShoppingCart $cart = null)
     {
         if (! $cart) {
             $cart = cart();
