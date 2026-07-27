@@ -24,6 +24,14 @@ class ShoppingCartBaseServiceProvider extends ServiceProvider
 
     public function register()
     {
+        // One Cart instance per identifier per request: the cart() helper
+        // resolves Cart::class with an identifier parameter, and every
+        // fresh build restores the cart from the database.
+        app()->scoped(CartRegistry::class);
+        app()->bind(Cart::class, function ($app, array $parameters) {
+            return $app->make(CartRegistry::class)->get($parameters['identifier'] ?? null);
+        });
+
         app()->singleton(BaseCart::class, Cart::class);
         app()->bind(CartDatabase::class, EloquentCartDatabase::class);
         app()->bind(CartShippingRatesDatabase::class, EloquentCartShippingRatesDatabase::class);

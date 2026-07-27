@@ -10,7 +10,7 @@ use juniorE\ShoppingCart\Models\CartItem;
 
 abstract class BaseCart implements Contracts\Cart
 {
-    protected const SESSION_CART_IDENTIFIER = 'cart_identifier';
+    public const SESSION_CART_IDENTIFIER = 'cart_identifier';
 
     /**
      * @var CartItemsRepository
@@ -106,7 +106,7 @@ abstract class BaseCart implements Contracts\Cart
     /**
      * Create Cart
      */
-    private function create(): string
+    protected function create(): string
     {
         $this->identifier = self::generateIdentifier();
 
