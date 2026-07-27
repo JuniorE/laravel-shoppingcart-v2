@@ -47,6 +47,22 @@ class Cart extends Model
         'created_at' => 'datetime',
     ];
 
+    /**
+     * Resolved at call time rather than set once in $table: the config is
+     * merged after the model class is loaded, and the migrations read the
+     * same value. Falls back to the conventional name so an application whose
+     * published config predates this option keeps working.
+     */
+    public function getTable()
+    {
+        return self::tableName();
+    }
+
+    public static function tableName(): string
+    {
+        return config('shoppingcart.database.table') ?: 'carts';
+    }
+
     public function history()
     {
         return $this->hasOne(VisitsHistory::class);

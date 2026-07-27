@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use juniorE\ShoppingCart\Models\Cart;
 
 class AddCouponCodeRelationToCartsTable extends Migration
 {
@@ -21,7 +22,7 @@ class AddCouponCodeRelationToCartsTable extends Migration
             return;
         }
 
-        Schema::table('carts', function (Blueprint $table) {
+        Schema::table(Cart::tableName(), function (Blueprint $table) {
             $table->foreign('coupon_code')->references('name')->on('cart_coupons')->onDelete('cascade');
         });
     }
@@ -33,6 +34,15 @@ class AddCouponCodeRelationToCartsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('carts');
+        // Drop the constraint this migration added; dropping the whole carts
+        // table here (what it used to do) belongs to the migration that
+        // created it, and made a rollback destroy every cart.
+        if (Schema::getConnection()->getDriverName() === 'sqlite') {
+            return;
+        }
+
+        Schema::table(Cart::tableName(), function (Blueprint $table) {
+            $table->dropForeign(['coupon_code']);
+        });
     }
 }

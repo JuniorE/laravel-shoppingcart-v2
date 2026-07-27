@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use juniorE\ShoppingCart\Models\Cart;
 
 class CreateCartItemsTable extends Migration
 {
@@ -16,7 +17,9 @@ class CreateCartItemsTable extends Migration
         Schema::create('cart_items', function (Blueprint $table) {
             $table->engine = 'InnoDB';
             $table->bigIncrements('id');
-            $table->foreignId('cart_id')->constrained()->onDelete('cascade');
+            // Named explicitly: constrained() would infer the referenced
+            // table from the column name and miss a renamed carts table.
+            $table->foreignId('cart_id')->constrained(Cart::tableName())->onDelete('cascade');
             $table->foreignId('parent_id')->nullable()->constrained('cart_items')->onDelete('cascade');
             $table->double('quantity')->default(0);
             $table->string('plu');
