@@ -41,9 +41,11 @@ namespace juniorE\ShoppingCart;
 
         public function removeItem(CartItem $item): void
         {
-            $this->cartItems->filter(function ($cartItem) use ($item) {
-                return $cartItem->id !== $item->id;
-            });
+            $this->cartItems = $this->cartItems
+                ->filter(function ($cartItem) use ($item) {
+                    return $cartItem->id !== $item->id;
+                })
+                ->values();
 
             app(CartDatabase::class)->removeCartItem($item);
         }
