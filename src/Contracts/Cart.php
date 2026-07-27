@@ -10,10 +10,8 @@ interface Cart
 {
     /**
      * Add a product to the cart
-     *
-     * @param  bool  $forceNewLine
      */
-    public function addProduct(array $product, bool $forceNewLine = null): CartItem;
+    public function addProduct(array $product, ?bool $forceNewLine = null): CartItem;
 
     /**
      * @return Collection|CartItem[]

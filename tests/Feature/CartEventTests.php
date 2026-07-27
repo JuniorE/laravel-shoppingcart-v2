@@ -15,14 +15,13 @@ use juniorE\ShoppingCart\Events\CartShippingRate\CartShippingRateCreatedEvent;
 use juniorE\ShoppingCart\Events\CartShippingRate\CartShippingRateDeletedEvent;
 use juniorE\ShoppingCart\Events\CartShippingRate\CartShippingRateUpdatedEvent;
 use juniorE\ShoppingCart\Tests\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 class CartEventTests extends TestCase
 {
     use RefreshDatabase;
 
-    /**
-     * @test
-     */
+    #[Test]
     public function cart_events()
     {
         Event::fake([
@@ -44,9 +43,7 @@ class CartEventTests extends TestCase
         Event::assertDispatchedTimes(CartDeletedEvent::class, 1);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function cart_item_events()
     {
         Event::fake([
@@ -70,9 +67,7 @@ class CartEventTests extends TestCase
         Event::assertDispatchedTimes(CartItemDeletedEvent::class, 1);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function cart_shipping_rate_events()
     {
         Event::fake([
@@ -98,9 +93,7 @@ class CartEventTests extends TestCase
         Event::assertDispatchedTimes(CartShippingRateDeletedEvent::class, 1);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function cart_coupon_events()
     {
         Event::fake([

@@ -5,14 +5,13 @@ use juniorE\ShoppingCart\Data\Interfaces\CartDatabase;
 use juniorE\ShoppingCart\Enums\ItemTypes;
 use juniorE\ShoppingCart\Models\CartItem;
 use juniorE\ShoppingCart\Tests\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 class CartItemTest extends TestCase
 {
     use RefreshDatabase;
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_set_parent_product()
     {
         $parent = cart()->addProduct([
@@ -38,9 +37,7 @@ class CartItemTest extends TestCase
         $this->assertEquals($sub2->id, $parent->subproducts->last()->id);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_set_additional_data()
     {
         $product = cart()->addProduct([
@@ -67,9 +64,7 @@ class CartItemTest extends TestCase
         $this->assertEquals('person', $product->additional['unit']);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_set_price()
     {
         $product = cart()->addProduct([
@@ -84,9 +79,7 @@ class CartItemTest extends TestCase
         $this->assertEquals(15, $product->price);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_update_weight()
     {
         $product = cart()->addProduct([
@@ -101,9 +94,7 @@ class CartItemTest extends TestCase
         $this->assertEquals(15, $product->weight);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_update_tax_percent()
     {
         $product = cart()->addProduct([
@@ -118,9 +109,7 @@ class CartItemTest extends TestCase
         $this->assertEquals(0.06, $product->tax_percent);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function does_tax_amount_get_updated_automatically()
     {
         $product = cart()->addProduct([
@@ -152,9 +141,7 @@ class CartItemTest extends TestCase
         $this->assertEqualsWithDelta(5.66, $product2->tax_amount, 0.005);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_update_plu()
     {
         $product = cart()->addProduct([
@@ -172,9 +159,7 @@ class CartItemTest extends TestCase
         $this->assertEquals(10, $product->plu);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function does_not_throw_errors_when_cart_item_doesnt_exist()
     {
         try {
@@ -186,14 +171,12 @@ class CartItemTest extends TestCase
             $dbItem = app(CartDatabase::class)->getCartItem($item->id);
             $this->assertNotNull($dbItem);
             $this->assertEquals($item->plu, $dbItem->plu);
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             $this->assertTrue(false);
         }
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function does_price_total_get_set_automatically_on_model_update()
     {
         $cart = cart();
@@ -217,9 +200,7 @@ class CartItemTest extends TestCase
         $this->assertEqualsWithDelta(11.16, (float) $product->tax_amount, .005);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_merge_rows()
     {
         $cart = cart();
@@ -277,9 +258,7 @@ class CartItemTest extends TestCase
         $this->assertCount(2, $cart->items());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_merge_rows_if_keys_arent_in_same_order()
     {
         $product = [
@@ -315,9 +294,7 @@ class CartItemTest extends TestCase
         $this->assertEquals(2, $cart->getItem($product->id)->quantity);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_add_item_with_decimal_quantity()
     {
         $cart = cart();
@@ -337,9 +314,7 @@ class CartItemTest extends TestCase
         $this->assertEquals((float) 0.25, $cart->items()->first()->quantity);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_update_subproduct_quantities()
     {
         $cart = cart();

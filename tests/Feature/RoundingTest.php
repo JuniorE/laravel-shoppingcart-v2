@@ -6,6 +6,7 @@ use Exception;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use juniorE\ShoppingCart\Enums\CouponTypes;
 use juniorE\ShoppingCart\Tests\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 $prices = [97.6415, 5.8585, 3.1050];
 
@@ -38,10 +39,9 @@ class RoundingTest extends TestCase
 
     /**
      * @throws Exception
-     *
-     * @test
      */
-    public function discountGetsRoundedCorrectly()
+    #[Test]
+    public function discount_gets_rounded_correctly()
     {
         $product = createProduct(103.5, 0.06);
 

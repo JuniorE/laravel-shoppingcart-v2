@@ -2,14 +2,13 @@
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use juniorE\ShoppingCart\Tests\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 class VisitsHistoryTest extends TestCase
 {
     use RefreshDatabase;
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_add_product_to_history()
     {
         $this->assertNull(cart()->history());

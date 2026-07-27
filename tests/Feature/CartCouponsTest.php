@@ -4,14 +4,13 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use juniorE\ShoppingCart\Enums\CouponTypes;
 use juniorE\ShoppingCart\Models\CartCoupon;
 use juniorE\ShoppingCart\Tests\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 class CartCouponsTest extends TestCase
 {
     use RefreshDatabase;
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_make_coupon()
     {
         cart()->couponsRepository->addCoupon([
@@ -30,9 +29,7 @@ class CartCouponsTest extends TestCase
         $this->assertNotNull(CartCoupon::firstWhere('name', '=', 'GOEDE BUREN'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_update_name()
     {
         $coupon = cart()->couponsRepository->addCoupon([
@@ -47,9 +44,7 @@ class CartCouponsTest extends TestCase
         $this->assertEquals('GOEDE BUREN', $coupon->name);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_update_description()
     {
         $coupon = cart()->couponsRepository->addCoupon([
@@ -65,9 +60,7 @@ class CartCouponsTest extends TestCase
         $this->assertEquals('GOEDE BUREN', $coupon->description);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_update_status()
     {
         $coupon = cart()->couponsRepository->addCoupon([
@@ -83,9 +76,7 @@ class CartCouponsTest extends TestCase
         $this->assertEquals(true, $coupon->status);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_update_type()
     {
         $coupon = cart()->couponsRepository->addCoupon([
@@ -101,9 +92,7 @@ class CartCouponsTest extends TestCase
         $this->assertEquals(CouponTypes::STEP, $coupon->coupon_type);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_set_start_and_end()
     {
         $coupon = cart()->couponsRepository->addCoupon([
@@ -127,9 +116,7 @@ class CartCouponsTest extends TestCase
         $this->assertEquals($end->format('Y-m-d'), $coupon->ends_till->format('Y-m-d'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_update_usage_per_customer()
     {
         $coupon = cart()->couponsRepository->addCoupon([
@@ -145,9 +132,7 @@ class CartCouponsTest extends TestCase
         $this->assertEquals(15, $coupon->usage_per_customer);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_update_usage_per_coupon()
     {
         $coupon = cart()->couponsRepository->addCoupon([
@@ -163,9 +148,7 @@ class CartCouponsTest extends TestCase
         $this->assertEquals(15, $coupon->uses_per_coupon);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_increase_used_counter()
     {
         $coupon = cart()->couponsRepository->addCoupon([
@@ -197,9 +180,7 @@ class CartCouponsTest extends TestCase
         $this->assertEquals(10, $coupon->times_used);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_update_conditional_and_conditions()
     {
         $coupon = cart()->couponsRepository->addCoupon([
@@ -233,9 +214,7 @@ class CartCouponsTest extends TestCase
         $this->assertContains(7, $coupon->conditions['contains_products']);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_update_ends_other_coupons()
     {
         $coupon = cart()->couponsRepository->addCoupon([
@@ -251,9 +230,7 @@ class CartCouponsTest extends TestCase
         $this->assertTrue($coupon->ends_other_coupons);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_update_discount_amount()
     {
         $coupon = cart()->couponsRepository->addCoupon([
@@ -268,9 +245,7 @@ class CartCouponsTest extends TestCase
         $this->assertEquals(75, $coupon->discount_amount);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_update_discount_percent()
     {
         $coupon = cart()->couponsRepository->addCoupon([
@@ -285,9 +260,7 @@ class CartCouponsTest extends TestCase
         $this->assertEquals(1, $coupon->discount_percent);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_update_discount_step_quantity()
     {
         $coupon = cart()->couponsRepository->addCoupon([
@@ -306,9 +279,7 @@ class CartCouponsTest extends TestCase
         $this->assertEquals(1, $coupon->discount_step);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_update_free_shipping_and_applies_on_shipping()
     {
         $coupon = cart()->couponsRepository->addCoupon([
@@ -329,9 +300,7 @@ class CartCouponsTest extends TestCase
         $this->assertEquals(false, $coupon->apply_to_shipping);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_delete_coupons()
     {
         $welcome = cart()->couponsRepository->addCoupon([
@@ -352,9 +321,7 @@ class CartCouponsTest extends TestCase
         $this->assertCount(0, CartCoupon::all());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function cant_get_negative_prices()
     {
         $cart = cart();
@@ -387,9 +354,7 @@ class CartCouponsTest extends TestCase
         $this->assertEquals(100, $cart->getCart()->discount);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_remove_coupons()
     {
         $cart = cart();
@@ -419,9 +384,7 @@ class CartCouponsTest extends TestCase
         $this->assertEquals(19.99, $cart->getCart()->grand_total);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function does_coupon_amount_change_when_adding_and_removing_products()
     {
         $cart = cart();

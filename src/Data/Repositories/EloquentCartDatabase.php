@@ -64,12 +64,12 @@ class EloquentCartDatabase implements CartDatabase
     /**
      * @return Collection|CartItem[]
      */
-    public function getCartItems(int $cartIdentifier = null)
+    public function getCartItems(?int $cartIdentifier = null)
     {
         return CartItem::where('cart_id', $cartIdentifier ?: cart()->id)->get();
     }
 
-    public function getCartItemsTree(int $cartIdentifier = null): Collection
+    public function getCartItemsTree(?int $cartIdentifier = null): Collection
     {
         return CartItem::where('cart_id', $cartIdentifier ?: cart()->id)
             ->whereNull('parent_id')
@@ -153,7 +153,7 @@ class EloquentCartDatabase implements CartDatabase
      * every cart item create/update/delete (model events), and any in-memory
      * item snapshot may be stale by the time it fires.
      */
-    public function updateTotal(int $cartId = null): void
+    public function updateTotal(?int $cartId = null): void
     {
         $cart = $cartId
             ? Cart::whereId($cartId)->first()

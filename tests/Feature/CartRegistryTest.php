@@ -4,22 +4,19 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use juniorE\ShoppingCart\BaseCart;
 use juniorE\ShoppingCart\Enums\ItemTypes;
 use juniorE\ShoppingCart\Tests\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 class CartRegistryTest extends TestCase
 {
     use RefreshDatabase;
 
-    /**
-     * @test
-     */
+    #[Test]
     public function the_cart_helper_returns_the_same_instance_within_a_request()
     {
         $this->assertSame(cart(), cart());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function an_explicit_identifier_resolves_to_the_same_instance()
     {
         $cart = cart();
@@ -27,9 +24,7 @@ class CartRegistryTest extends TestCase
         $this->assertSame($cart, cart($cart->identifier));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function different_identifiers_resolve_to_different_carts()
     {
         $first = cart();
@@ -39,9 +34,7 @@ class CartRegistryTest extends TestCase
         $this->assertNotEquals($first->identifier, $second->identifier);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function totals_reflect_a_removal_done_through_the_shared_instance()
     {
         $cart = cart();
@@ -64,9 +57,7 @@ class CartRegistryTest extends TestCase
         $this->assertEquals(10.0, (float) $cart->getCart()->grand_total);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function a_renamed_cart_is_resolved_fresh_under_its_new_identifier()
     {
         $cart = cart();

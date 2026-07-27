@@ -50,13 +50,13 @@ abstract class BaseCart implements Contracts\Cart
     /**
      * BaseCart constructor.
      */
-    public function __construct(string $identifier = null)
+    public function __construct(?string $identifier = null)
     {
         $this->restoreOrCreateIdentifier($identifier);
 
-        $this->itemsRepository = new CartItemsRepository();
-        $this->couponsRepository = new CartCouponRepository();
-        $this->shippingRateRepository = new CartShippingRatesRepository();
+        $this->itemsRepository = new CartItemsRepository;
+        $this->couponsRepository = new CartCouponRepository;
+        $this->shippingRateRepository = new CartShippingRatesRepository;
 
         session()->put(self::SESSION_CART_IDENTIFIER, $this->identifier);
     }
@@ -131,7 +131,7 @@ abstract class BaseCart implements Contracts\Cart
         return app(CartDatabase::class)->getCartItem($id);
     }
 
-    public function getItems(int $cartId = null)
+    public function getItems(?int $cartId = null)
     {
         return app(CartDatabase::class)->getCartItems($cartId);
     }

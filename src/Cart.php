@@ -12,7 +12,7 @@ use juniorE\ShoppingCart\Models\CartItem;
 
 class Cart extends BaseCart
 {
-    public function addProduct(array $product, bool $forceNewLine = null): CartItem
+    public function addProduct(array $product, ?bool $forceNewLine = null): CartItem
     {
         if ($forceNewLine === null) {
             $forceNewLine = ! config('shoppingcart.merge_lines');
@@ -95,7 +95,9 @@ class Cart extends BaseCart
     {
         $database = app(CartDatabase::class);
         $database->setCheckoutMethod($checkoutMethod);
-        $database->setConversionTime(now()->diffInMinutes($this->getCart()->created_at));
+        // Diffed from created_at forward: Carbon 3 diffs are signed, so the
+        // old now()->diffInMinutes(created_at) stored negative minutes.
+        $database->setConversionTime((int) $this->getCart()->created_at->diffInMinutes(now()));
     }
 
     public function setShippingMethod(string $method): void

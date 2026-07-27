@@ -50,7 +50,7 @@ class CartCoupon extends Model
 
     ];
 
-    private function conditionsSatisfied(ShoppingCart $cart, CartItem $item = null)
+    private function conditionsSatisfied(ShoppingCart $cart, ?CartItem $item = null)
     {
         if ($this->conditional) {
             if (isset($this->conditions['cart_contains_plus'])) {

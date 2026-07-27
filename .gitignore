@@ -4,6 +4,7 @@ vendor/
 composer.lock
 .env
 .phpunit.result.cache
+.phpunit.cache/
 /storage/*.key
 /public/hot
 /public/storage

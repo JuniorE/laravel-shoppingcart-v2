@@ -10,7 +10,7 @@ use juniorE\ShoppingCart\Models\CartItem;
 
 class EloquentCartCouponDatabase implements CartCouponDatabase
 {
-    public function getCoupons(int $cartId = null)
+    public function getCoupons(?int $cartId = null)
     {
         if ($cartId) {
             $coupons = CartItem::where('cart_id', $cartId)->whereNotNull('coupon_code')->get()->map->only('coupon_code')->flatten();

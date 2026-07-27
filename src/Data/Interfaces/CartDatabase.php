@@ -31,9 +31,9 @@ interface CartDatabase
     /**
      * @return Collection|CartItem[]
      */
-    public function getCartItems(int $cartIdentifier = null);
+    public function getCartItems(?int $cartIdentifier = null);
 
-    public function getCartItemsTree(int $cartIdentifier = null): Collection;
+    public function getCartItemsTree(?int $cartIdentifier = null): Collection;
 
     public function removeCartItem(CartItem $item): void;
 
@@ -45,7 +45,7 @@ interface CartDatabase
 
     public function setConversionTime(int $minutes): void;
 
-    public function updateTotal(int $cartId = null): void;
+    public function updateTotal(?int $cartId = null): void;
 
     public function setAdditionalData(array $data): void;
 

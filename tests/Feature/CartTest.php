@@ -5,8 +5,9 @@ use juniorE\ShoppingCart\Cart;
 use juniorE\ShoppingCart\Data\Interfaces\CartDatabase;
 use juniorE\ShoppingCart\Enums\CouponTypes;
 use juniorE\ShoppingCart\Enums\ItemTypes;
-use juniorE\ShoppingCart\Models as Models;
+use juniorE\ShoppingCart\Models;
 use juniorE\ShoppingCart\Tests\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 class CartTest extends TestCase
 {
@@ -20,17 +21,13 @@ class CartTest extends TestCase
         parent::setUp();
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_get_cart()
     {
         $this->assertInstanceOf(Cart::class, cart());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_add_product_to_cart()
     {
         $this->assertCount(0, cart()->items());
@@ -42,9 +39,7 @@ class CartTest extends TestCase
             ->getCartItems(cart()->id));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_remove_product_from_cart()
     {
         $this->assertCount(0, cart()->items());
@@ -56,9 +51,7 @@ class CartTest extends TestCase
         $this->assertCount(0, cart()->items());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_get_product()
     {
         $product = cart()->addProduct([
@@ -73,9 +66,7 @@ class CartTest extends TestCase
         $this->assertEquals($product->cart_id, $dbProduct->cart_id);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_set_checkout_method()
     {
         $this->assertEquals(null, cart()->getCart()->checkout_method);
@@ -83,9 +74,7 @@ class CartTest extends TestCase
         $this->assertEquals('invoice', cart()->getCart()->checkout_method);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_set_conversion_time()
     {
         cart()->getCart()->update(['created_at' => now()->addMinutes(-15)]);
@@ -94,9 +83,7 @@ class CartTest extends TestCase
         $this->assertEquals(15, cart()->getCart()->conversion_time);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_destroy_cart()
     {
         cart()->addProduct([
@@ -115,9 +102,7 @@ class CartTest extends TestCase
         $this->assertNotSame($identifier, cart()->identifier);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_cleanup_idle_carts()
     {
         DB::table('carts')->insert([
@@ -141,7 +126,7 @@ class CartTest extends TestCase
         $this->assertCount(15, Models\Cart::all());
 
         $this->assertFalse(Models\Cart::all()->every(function (Models\Cart $cart) {
-            return now()->diffInDays($cart->updated_at) < 30;
+            return $cart->updated_at->diffInDays(now()) < 30;
         }));
 
         Models\Cart::clean();
@@ -153,9 +138,7 @@ class CartTest extends TestCase
         }));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_set_additional_data()
     {
         cart()->addProduct([
@@ -184,9 +167,7 @@ class CartTest extends TestCase
         $this->assertEquals('Peanut Allergy', cart()->getCart()->additional['comment']);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_update_identifier()
     {
         $customerId = 10;
@@ -202,9 +183,7 @@ class CartTest extends TestCase
         $this->assertEquals($identifier, session('cart_identifier'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_add_coupon_to_cart_items()
     {
         $coupon = cart()->couponsRepository->addCoupon([
@@ -232,9 +211,7 @@ class CartTest extends TestCase
         $this->assertEquals($coupon->name, $product2->coupon_code);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_set_shipping_method()
     {
         $cart = cart();
@@ -255,9 +232,7 @@ class CartTest extends TestCase
         $this->assertEquals('truck', cart()->getCart()->shipping_method);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function get_total_price()
     {
         $this->assertEquals(0, cart()->getCart()->grand_total);
@@ -274,9 +249,7 @@ class CartTest extends TestCase
         $this->assertEquals(0.85, round(cart()->getCart()->tax_total, 2));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_get_best_shipping_rate_for_cart()
     {
         $truck = cart()->shippingRateRepository->addShippingRate([
@@ -354,9 +327,7 @@ class CartTest extends TestCase
         $this->assertEquals($truck3->price, cart()->getShippingRate()->price);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_add_coupon_and_is_coupon_applied_correctly()
     {
         $frappucino = [
@@ -446,9 +417,7 @@ class CartTest extends TestCase
         $this->assertEquals($espresso['price'] + $machiato['price'], cart()->getCart()->grand_total);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_add_coupon_to_cart_item_and_is_coupon_calculated_correctly()
     {
         $cookie = [
@@ -542,9 +511,7 @@ class CartTest extends TestCase
         $this->assertEqualsWithDelta(39.90, (float) cart()->getCart()->grand_total, 0.005);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function does_throw_null_pointer_exception_when_cart_gets_cleaned()
     {
         cart()->addProduct([
@@ -566,12 +533,10 @@ class CartTest extends TestCase
         $this->assertNotEquals($id, cart()->identifier);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_restore_cart()
     {
-        $cart = new Cart();
+        $cart = new Cart;
         $cart->addProduct([
             'plu' => 4,
         ]);
@@ -615,9 +580,7 @@ class CartTest extends TestCase
         $this->assertEquals(5, $item->plu);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function auto_merge_products_if_possible()
     {
         $product = [
@@ -719,9 +682,7 @@ class CartTest extends TestCase
         $this->assertEquals(8, $item->quantity);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function get_cart_items_as_a_tree_structure()
     {
         $parent = cart()->addProduct([
@@ -755,9 +716,7 @@ class CartTest extends TestCase
         $this->assertEquals(6, $tree->first()->subproducts->first()->plu);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function does_price_update_after_deleting_a_cart_item()
     {
         $cart = cart();
@@ -774,9 +733,7 @@ class CartTest extends TestCase
         $this->assertEquals(0, (float) $cart->getCart()->grand_total);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function does_updating_cart_item_cause_price_update_in_cart()
     {
         $cart = cart();
@@ -797,9 +754,7 @@ class CartTest extends TestCase
         $this->assertEqualsWithDelta(49.75, $cart->getCart()->grand_total, 0.005);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_get_all_applied_coupons()
     {
         $cart = cart();
@@ -852,9 +807,7 @@ class CartTest extends TestCase
         $this->assertCount(0, Models\CartCoupon::where('cart_id', $cart->id)->where('coupon_code', 'DISCOUNT_60%')->get());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_empty_cart()
     {
         $identifier = md5('lmao');
@@ -895,9 +848,7 @@ class CartTest extends TestCase
         $this->assertEquals(0, $cart->getCart()->discount);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_empty_cart_with_coupon_code()
     {
         $cart = cart();
@@ -928,9 +879,7 @@ class CartTest extends TestCase
         $this->assertEquals(0, $cart->getCart()->discount);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_get_subproducts_of_type()
     {
         $cart = cart();
@@ -983,9 +932,7 @@ class CartTest extends TestCase
         $this->assertEquals(7, $parent->getSubproductsOfType(ItemTypes::RENT)->first()->plu);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function does_shipping_rate_affect_total_price()
     {
         $cart = cart();
@@ -1030,9 +977,7 @@ class CartTest extends TestCase
         $this->assertEquals(0, $cart->getDeliveryCost());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function removing_shipping_method_lowers_total_price_if_necessary()
     {
         $cart = cart();
@@ -1059,9 +1004,7 @@ class CartTest extends TestCase
         $this->assertEquals(5, $cart->getCart()->grand_total);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_add_subproducts_after_logging_in_and_out()
     {
         /**

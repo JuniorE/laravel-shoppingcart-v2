@@ -11,7 +11,7 @@ interface CartCouponDatabase
     /**
      * @return Collection|CartCoupon[]|null
      */
-    public function getCoupons(int $cartId = null);
+    public function getCoupons(?int $cartId = null);
 
     /**
      * @return CartCoupon|null

@@ -8,14 +8,13 @@ use juniorE\ShoppingCart\Models\CartCoupon;
 use juniorE\ShoppingCart\Models\CartItem;
 use juniorE\ShoppingCart\Models\CartShippingRate;
 use juniorE\ShoppingCart\Tests\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 class DatabaseTest extends TestCase
 {
     use RefreshDatabase;
 
-    /**
-     * @test
-     */
+    #[Test]
     public function a_cart_can_be_saved()
     {
         $this->assertCount(0, Cart::all());
@@ -27,9 +26,7 @@ class DatabaseTest extends TestCase
         $this->assertCount(1, Cart::all());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function a_cart_coupon_can_be_saved()
     {
         $this->assertCount(0, CartCoupon::all());
@@ -43,9 +40,7 @@ class DatabaseTest extends TestCase
         $this->assertCount(1, CartCoupon::all());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function a_cart_item_can_be_saved()
     {
         $this->assertCount(0, CartItem::all());
@@ -62,9 +57,7 @@ class DatabaseTest extends TestCase
         $this->assertCount(1, CartItem::all());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function a_cart_shipping_rate_can_be_saved()
     {
         $this->assertCount(0, CartShippingRate::all());

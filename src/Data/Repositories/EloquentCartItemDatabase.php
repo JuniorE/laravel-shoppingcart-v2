@@ -112,7 +112,7 @@ class EloquentCartItemDatabase implements CartItemDatabase
         app(CartDatabase::class)->updateTotal();
     }
 
-    private function updateSubproducts(CartItem $item, float $multiplier, Closure $shouldUpdate = null)
+    private function updateSubproducts(CartItem $item, float $multiplier, ?Closure $shouldUpdate = null)
     {
         $item->subproducts->map(function (CartItem $subproduct) use ($multiplier, $shouldUpdate) {
             if (($shouldUpdate && $shouldUpdate($subproduct))

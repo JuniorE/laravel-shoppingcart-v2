@@ -3,6 +3,7 @@
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use juniorE\ShoppingCart\Models\CartShippingRate;
 use juniorE\ShoppingCart\Tests\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 class CartShippingRatesTest extends TestCase
 {
@@ -23,7 +24,7 @@ class CartShippingRatesTest extends TestCase
      */
     private $cash;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -46,9 +47,7 @@ class CartShippingRatesTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_make_a_shipping_rate()
     {
         $this->assertEquals('invoice', $this->invoice->method);
@@ -62,9 +61,7 @@ class CartShippingRatesTest extends TestCase
         $this->assertCount(3, CartShippingRate::all());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_set_method_of_shipping_rate()
     {
         $mistakeInvoice = cart()->shippingRateRepository->addShippingRate([
@@ -80,9 +77,7 @@ class CartShippingRatesTest extends TestCase
         $this->assertEquals('invoice', $mistakeInvoice->method);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_set_method_description()
     {
         $this->assertNull($this->invoice->method_description);
@@ -92,9 +87,7 @@ class CartShippingRatesTest extends TestCase
         $this->assertEquals('lorem ipsum', $this->invoice->method_description);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_set_price_of_shipping_rate()
     {
         $this->assertEquals(10, $this->invoice->price);
@@ -105,9 +98,7 @@ class CartShippingRatesTest extends TestCase
         $this->assertEquals(0, $this->invoiceFree->price);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_set_minimum_cart_price()
     {
         $this->assertEquals(0, $this->invoice->minimum_cart_price);
@@ -119,9 +110,7 @@ class CartShippingRatesTest extends TestCase
         $this->assertEquals(100, $this->invoiceFree->minimum_cart_price);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_remove_shipping_rates()
     {
         $this->assertCount(3, CartShippingRate::all());
@@ -133,9 +122,7 @@ class CartShippingRatesTest extends TestCase
         $this->assertCount(0, CartShippingRate::all());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shipping_rate_price_does_not_count_for_shipping_rate_eligibility()
     {
         $cart = cart();
