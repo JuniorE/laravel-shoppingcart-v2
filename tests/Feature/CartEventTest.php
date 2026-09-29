@@ -17,7 +17,7 @@ use juniorE\ShoppingCart\Events\CartShippingRate\CartShippingRateUpdatedEvent;
 use juniorE\ShoppingCart\Tests\TestCase;
 use PHPUnit\Framework\Attributes\Test;
 
-class CartEventTests extends TestCase
+class CartEventTest extends TestCase
 {
     use RefreshDatabase;
 
