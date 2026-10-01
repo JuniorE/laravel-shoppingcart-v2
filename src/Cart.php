@@ -268,6 +268,14 @@ class Cart extends BaseCart
 
     public function merge(Contracts\Cart $other): Contracts\Cart
     {
+        // Lines are copied with their prices; a gross line in a net cart
+        // (or the reverse) would be taxed wrongly from then on.
+        if ($this->pricesIncludeTax() !== $other->pricesIncludeTax()) {
+            throw new \LogicException(
+                'Cannot merge a cart whose prices include VAT with one whose prices exclude it.'
+            );
+        }
+
         $other->itemsTree()->each(function ($item) {
             $this->addItem($item);
         });

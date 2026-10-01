@@ -163,7 +163,9 @@ class EloquentCartDatabase implements CartDatabase
             return;
         }
 
-        $totals = $this->cartTotals($cart->id);
+        $totals = $cart->prices_include_tax === false
+            ? $this->netCartTotals($cart->id)
+            : $this->cartTotals($cart->id);
 
         $discount = $this->totalDiscount($cart, $totals->item_discounts, $totals->discountable_total);
 
@@ -199,6 +201,41 @@ class EloquentCartDatabase implements CartDatabase
 
         $totals->total = (float) $totals->total;
         $totals->sub_total = (float) $totals->sub_total;
+        $totals->item_discounts = (float) $totals->item_discounts;
+        $totals->discountable_total = (float) $totals->discountable_total;
+
+        return $totals;
+    }
+
+    /**
+     * The totals of a cart whose prices exclude VAT: the lines are the
+     * taxable base and each line's tax comes on top. Same shape as
+     * cartTotals(), so updateTotal() derives tax_total as total − sub_total
+     * in both modes.
+     *
+     * @return object{total: float, sub_total: float, item_discounts: float, discountable_total: float}
+     */
+    private function netCartTotals(int $cartId)
+    {
+        [$taxableSql, $taxableBindings] = $this->typeNotExemptSql(config('shoppingcart.tax_exempt_types'));
+        [$discountableSql, $discountableBindings] = $this->typeNotExemptSql(config('shoppingcart.discount_exempt_types'));
+
+        $totals = CartItem::query()
+            ->where('cart_id', $cartId)
+            ->selectRaw('COALESCE(SUM(price * quantity), 0) as sub_total')
+            ->selectRaw(
+                "COALESCE(SUM(CASE WHEN {$taxableSql} THEN price * quantity * COALESCE(tax_percent, 0) ELSE 0 END), 0) as tax",
+                $taxableBindings
+            )
+            ->selectRaw('COALESCE(SUM(discount), 0) as item_discounts')
+            ->selectRaw(
+                "COALESCE(SUM(CASE WHEN {$discountableSql} THEN total ELSE 0 END), 0) as discountable_total",
+                $discountableBindings
+            )
+            ->first();
+
+        $totals->sub_total = (float) $totals->sub_total;
+        $totals->total = $totals->sub_total + (float) $totals->tax;
         $totals->item_discounts = (float) $totals->item_discounts;
         $totals->discountable_total = (float) $totals->discountable_total;
 

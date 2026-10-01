@@ -182,4 +182,34 @@ class NetPricingTest extends TestCase
 
         $this->assertEqualsWithDelta(0.0, (float) $item->fresh()->tax_amount, 0.00001);
     }
+
+    #[Test]
+    public function a_net_cart_totals_its_tax_on_top()
+    {
+        $cart = cart();
+        $cart->setPricesIncludeTax(false);
+        $cart->addProduct(['plu' => 5, 'price' => 100, 'quantity' => 1, 'tax_percent' => 0.06]);
+        $cart->addProduct(['plu' => 7, 'price' => 20, 'quantity' => 1, 'tax_percent' => 0.21]);
+        $cart->addProduct(['plu' => 8, 'price' => 3, 'quantity' => 2, 'tax_percent' => 0.21, 'type' => ItemTypes::WARRANTY]);
+
+        $row = $cart->getCart()->fresh();
+
+        $this->assertEqualsWithDelta(126.0, (float) $row->sub_total, 0.0001);
+        $this->assertEqualsWithDelta(10.2, (float) $row->tax_total, 0.0001);
+        $this->assertEqualsWithDelta(136.2, (float) $row->grand_total, 0.0001);
+    }
+
+    #[Test]
+    public function carts_of_different_modes_do_not_merge()
+    {
+        $guest = cart();
+        $guest->addProduct(['plu' => 5, 'price' => 10.6, 'quantity' => 1, 'tax_percent' => 0.06]);
+
+        $customer = cart('a-customer-identifier');
+        $customer->setPricesIncludeTax(false);
+
+        $this->expectException(LogicException::class);
+
+        $customer->merge($guest);
+    }
 }
