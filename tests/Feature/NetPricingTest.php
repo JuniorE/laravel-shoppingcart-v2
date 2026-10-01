@@ -208,8 +208,38 @@ class NetPricingTest extends TestCase
         $customer = cart('a-customer-identifier');
         $customer->setPricesIncludeTax(false);
 
-        $this->expectException(LogicException::class);
+        $thrown = null;
+        try {
+            $customer->merge($guest);
+        } catch (LogicException $exception) {
+            $thrown = $exception;
+        }
+
+        $this->assertInstanceOf(LogicException::class, $thrown);
+        $this->assertCount(0, $customer->items());
+    }
+
+    #[Test]
+    public function two_net_carts_merge_with_the_tax_on_top()
+    {
+        $guest = cart();
+        $guest->setPricesIncludeTax(false);
+        $guest->addProduct(['plu' => 5, 'price' => 10, 'quantity' => 3, 'tax_percent' => 0.06]);
+
+        $customer = cart('a-customer-identifier');
+        $customer->setPricesIncludeTax(false);
+        $customer->addProduct(['plu' => 7, 'price' => 20, 'quantity' => 1, 'tax_percent' => 0.21]);
 
         $customer->merge($guest);
+
+        $lines = $customer->items()->keyBy('plu');
+        $this->assertCount(2, $lines);
+        $this->assertEqualsWithDelta(30.0, (float) $lines[5]->total, 0.00001);
+        $this->assertEqualsWithDelta(1.8, (float) $lines[5]->tax_amount, 0.00001);
+
+        $row = $customer->getCart()->fresh();
+        $this->assertEqualsWithDelta(50.0, (float) $row->sub_total, 0.0001);
+        $this->assertEqualsWithDelta(6.0, (float) $row->tax_total, 0.0001);
+        $this->assertEqualsWithDelta(56.0, (float) $row->grand_total, 0.0001);
     }
 }

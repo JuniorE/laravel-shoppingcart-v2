@@ -163,9 +163,8 @@ class EloquentCartDatabase implements CartDatabase
             return;
         }
 
-        $totals = $cart->prices_include_tax === false
-            ? $this->netCartTotals($cart->id)
-            : $this->cartTotals($cart->id);
+        // A row with no stored mode reads as gross, like Cart::pricesIncludeTaxFor().
+        $totals = $this->cartTotals($cart->id, $cart->prices_include_tax !== false);
 
         $discount = $this->totalDiscount($cart, $totals->item_discounts, $totals->discountable_total);
 
@@ -178,55 +177,32 @@ class EloquentCartDatabase implements CartDatabase
     }
 
     /**
-     * @return object{total: float, sub_total: float, item_discounts: float, discountable_total: float}
-     */
-    private function cartTotals(int $cartId)
-    {
-        [$taxableSql, $taxableBindings] = $this->typeNotExemptSql(config('shoppingcart.tax_exempt_types'));
-        [$discountableSql, $discountableBindings] = $this->typeNotExemptSql(config('shoppingcart.discount_exempt_types'));
-
-        $totals = CartItem::query()
-            ->where('cart_id', $cartId)
-            ->selectRaw('COALESCE(SUM(price * quantity), 0) as total')
-            ->selectRaw(
-                "COALESCE(SUM(CASE WHEN {$taxableSql} THEN (price * quantity) / (1 + COALESCE(tax_percent, 0)) ELSE price * quantity END), 0) as sub_total",
-                $taxableBindings
-            )
-            ->selectRaw('COALESCE(SUM(discount), 0) as item_discounts')
-            ->selectRaw(
-                "COALESCE(SUM(CASE WHEN {$discountableSql} THEN total ELSE 0 END), 0) as discountable_total",
-                $discountableBindings
-            )
-            ->first();
-
-        $totals->total = (float) $totals->total;
-        $totals->sub_total = (float) $totals->sub_total;
-        $totals->item_discounts = (float) $totals->item_discounts;
-        $totals->discountable_total = (float) $totals->discountable_total;
-
-        return $totals;
-    }
-
-    /**
-     * The totals of a cart whose prices exclude VAT: the lines are the
-     * taxable base and each line's tax comes on top. Same shape as
-     * cartTotals(), so updateTotal() derives tax_total as total − sub_total
-     * in both modes.
+     * The cart's totals, in either VAT mode. A line's price × quantity is the
+     * price it was shown at; the mode decides what that price is:
+     * - prices include VAT: total = Σ lines, and sub_total takes each taxable
+     *   line's VAT out;
+     * - prices exclude VAT: sub_total = Σ lines, and total adds each taxable
+     *   line's VAT on top.
+     * Either way updateTotal() derives tax_total as total − sub_total, and the
+     * discount inputs (the lines' own discounts, the total a coupon may
+     * discount) are the same.
      *
      * @return object{total: float, sub_total: float, item_discounts: float, discountable_total: float}
      */
-    private function netCartTotals(int $cartId)
+    private function cartTotals(int $cartId, bool $pricesIncludeTax): object
     {
         [$taxableSql, $taxableBindings] = $this->typeNotExemptSql(config('shoppingcart.tax_exempt_types'));
         [$discountableSql, $discountableBindings] = $this->typeNotExemptSql(config('shoppingcart.discount_exempt_types'));
 
-        $totals = CartItem::query()
+        // Gross: each line without its VAT. Net: each line's VAT.
+        $splitSql = $pricesIncludeTax
+            ? "CASE WHEN {$taxableSql} THEN (price * quantity) / (1 + COALESCE(tax_percent, 0)) ELSE price * quantity END"
+            : "CASE WHEN {$taxableSql} THEN price * quantity * COALESCE(tax_percent, 0) ELSE 0 END";
+
+        $row = CartItem::query()
             ->where('cart_id', $cartId)
-            ->selectRaw('COALESCE(SUM(price * quantity), 0) as sub_total')
-            ->selectRaw(
-                "COALESCE(SUM(CASE WHEN {$taxableSql} THEN price * quantity * COALESCE(tax_percent, 0) ELSE 0 END), 0) as tax",
-                $taxableBindings
-            )
+            ->selectRaw('COALESCE(SUM(price * quantity), 0) as lines_total')
+            ->selectRaw("COALESCE(SUM({$splitSql}), 0) as split_total", $taxableBindings)
             ->selectRaw('COALESCE(SUM(discount), 0) as item_discounts')
             ->selectRaw(
                 "COALESCE(SUM(CASE WHEN {$discountableSql} THEN total ELSE 0 END), 0) as discountable_total",
@@ -234,12 +210,15 @@ class EloquentCartDatabase implements CartDatabase
             )
             ->first();
 
-        $totals->sub_total = (float) $totals->sub_total;
-        $totals->total = $totals->sub_total + (float) $totals->tax;
-        $totals->item_discounts = (float) $totals->item_discounts;
-        $totals->discountable_total = (float) $totals->discountable_total;
+        $linesTotal = (float) $row->lines_total;
+        $splitTotal = (float) $row->split_total;
 
-        return $totals;
+        return (object) [
+            'total' => $pricesIncludeTax ? $linesTotal : $linesTotal + $splitTotal,
+            'sub_total' => $pricesIncludeTax ? $splitTotal : $linesTotal,
+            'item_discounts' => (float) $row->item_discounts,
+            'discountable_total' => (float) $row->discountable_total,
+        ];
     }
 
     /**
