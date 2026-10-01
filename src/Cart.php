@@ -112,6 +112,30 @@ class Cart extends BaseCart
         app(CartDatabase::class)->setAdditionalData($data);
     }
 
+    public function pricesIncludeTax(): bool
+    {
+        return Models\Cart::pricesIncludeTaxFor($this->getCart()->id);
+    }
+
+    public function setPricesIncludeTax(bool $include): void
+    {
+        $cart = $this->getCart();
+
+        if (Models\Cart::pricesIncludeTaxFor($cart->id) === $include) {
+            return;
+        }
+
+        if ($cart->items()->exists()) {
+            throw new \LogicException(
+                'A cart with lines keeps the VAT mode its lines were priced in; empty it before switching.'
+            );
+        }
+
+        // A basket emptied line by line still carries the coupon and the
+        // delivery method it was priced with; neither belongs to the other mode.
+        $cart->update(['prices_include_tax' => $include, 'coupon_code' => null, 'shipping_method' => null]);
+    }
+
     public function getCart(): Models\Cart
     {
         $cart = app(CartDatabase::class)->getCart($this->identifier);

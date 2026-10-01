@@ -94,5 +94,20 @@ interface Cart
 
     public function itemsTree(): Collection;
 
+    /**
+     * Whether this cart's prices include VAT (true for every cart unless it
+     * was switched to net prices while empty).
+     */
+    public function pricesIncludeTax(): bool;
+
+    /**
+     * Switch this cart between prices that include VAT and prices that
+     * exclude it. Only an empty cart can change; a cart with lines keeps
+     * the mode its lines were priced in.
+     *
+     * @throws \LogicException when the cart has lines and the mode would change
+     */
+    public function setPricesIncludeTax(bool $include): void;
+
     public function merge(Cart $other): Cart;
 }

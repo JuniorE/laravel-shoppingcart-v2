@@ -25,6 +25,7 @@ use juniorE\ShoppingCart\Events\Cart\CartUpdatedEvent;
  * @property float|null $sub_total
  * @property float|null $tax_total
  * @property float|null $discount
+ * @property bool $prices_include_tax
  * @property string|null $checkout_method
  * @property int|null $conversion_time
  * @property array|null $additional
@@ -43,6 +44,7 @@ class Cart extends Model
 
     protected $casts = [
         'additional' => 'array',
+        'prices_include_tax' => 'bool',
         'updated_at' => 'datetime',
         'created_at' => 'datetime',
     ];
@@ -61,6 +63,18 @@ class Cart extends Model
     public static function tableName(): string
     {
         return config('shoppingcart.database.table') ?: 'carts';
+    }
+
+    /**
+     * Whether the prices on this cart include VAT. A cart that does not exist
+     * (any more), or a row without the value, reads as true: that is how
+     * every cart behaved before carts could hold net prices.
+     */
+    public static function pricesIncludeTaxFor(int $cartId): bool
+    {
+        $value = static::query()->whereKey($cartId)->value('prices_include_tax');
+
+        return $value === null ? true : (bool) $value;
     }
 
     public function history()

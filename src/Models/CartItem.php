@@ -28,6 +28,7 @@ use juniorE\ShoppingCart\Events\CartItems\CartItemUpdatedEvent;
  * @property float $discount
  * @property float|null $tax_percent
  * @property float|null $tax_amount
+ * @property int|null $tax_code
  * @property array|null $additional
  * @property Carbon $updated_at
  * @property Carbon $created_at
