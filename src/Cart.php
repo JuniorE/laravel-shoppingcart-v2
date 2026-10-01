@@ -132,8 +132,10 @@ class Cart extends BaseCart
         }
 
         // A basket emptied line by line still carries the coupon and the
-        // delivery method it was priced with; neither belongs to the other mode.
+        // delivery method it was priced with, and totals that include them;
+        // neither belongs to the other mode.
         $cart->update(['prices_include_tax' => $include, 'coupon_code' => null, 'shipping_method' => null]);
+        app(CartDatabase::class)->updateTotal($cart->id);
     }
 
     public function getCart(): Models\Cart
