@@ -2,6 +2,7 @@
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
+use juniorE\ShoppingCart\Enums\ItemTypes;
 use juniorE\ShoppingCart\Models\Cart as CartModel;
 use juniorE\ShoppingCart\Tests\TestCase;
 use PHPUnit\Framework\Attributes\Test;
@@ -111,5 +112,74 @@ class NetPricingTest extends TestCase
         $item = cart()->addProduct(['plu' => 5, 'price' => 10, 'quantity' => 1, 'tax_percent' => 0.06, 'tax_code' => 2]);
 
         $this->assertSame(2, (int) $item->fresh()->tax_code);
+    }
+
+    #[Test]
+    public function a_net_line_adds_its_tax_on_top()
+    {
+        $cart = cart();
+        $cart->setPricesIncludeTax(false);
+
+        $item = $cart->addProduct(['plu' => 5, 'price' => 10, 'quantity' => 3, 'tax_percent' => 0.06]);
+
+        $this->assertEqualsWithDelta(30.0, (float) $item->fresh()->total, 0.00001);
+        $this->assertEqualsWithDelta(1.8, (float) $item->fresh()->tax_amount, 0.00001);
+    }
+
+    #[Test]
+    public function a_gross_line_keeps_its_tax_inside()
+    {
+        $item = cart()->addProduct(['plu' => 5, 'price' => 10, 'quantity' => 3, 'tax_percent' => 0.06]);
+
+        $this->assertEqualsWithDelta(30 - 30 / 1.06, (float) $item->fresh()->tax_amount, 0.0001);
+    }
+
+    #[Test]
+    public function a_quantity_change_recomputes_the_net_tax()
+    {
+        $cart = cart();
+        $cart->setPricesIncludeTax(false);
+        $item = $cart->addProduct(['plu' => 5, 'price' => 10, 'quantity' => 3, 'tax_percent' => 0.06]);
+
+        $cart->itemsRepository->setQuantity($item, 5);
+
+        $this->assertEqualsWithDelta(3.0, (float) $item->fresh()->tax_amount, 0.00001);
+    }
+
+    #[Test]
+    public function a_price_change_recomputes_the_net_tax()
+    {
+        $cart = cart();
+        $cart->setPricesIncludeTax(false);
+        $item = $cart->addProduct(['plu' => 5, 'price' => 10, 'quantity' => 2, 'tax_percent' => 0.21]);
+
+        $cart->itemsRepository->setPrice($item, 12.5);
+
+        $this->assertEqualsWithDelta(5.25, (float) $item->fresh()->tax_amount, 0.00001);
+    }
+
+    #[Test]
+    public function a_tax_rate_change_recomputes_the_net_tax()
+    {
+        $cart = cart();
+        $cart->setPricesIncludeTax(false);
+        $item = $cart->addProduct(['plu' => 5, 'price' => 10, 'quantity' => 2, 'tax_percent' => 0.06]);
+
+        $cart->itemsRepository->setTaxPercent($item, 0.12);
+
+        $this->assertEqualsWithDelta(2.4, (float) $item->fresh()->tax_amount, 0.00001);
+    }
+
+    #[Test]
+    public function a_deposit_in_a_net_cart_carries_no_tax()
+    {
+        $cart = cart();
+        $cart->setPricesIncludeTax(false);
+
+        $item = $cart->addProduct([
+            'plu' => 6, 'price' => 15, 'quantity' => 2, 'tax_percent' => 0.21, 'type' => ItemTypes::WARRANTY,
+        ]);
+
+        $this->assertEqualsWithDelta(0.0, (float) $item->fresh()->tax_amount, 0.00001);
     }
 }

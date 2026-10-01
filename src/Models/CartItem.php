@@ -82,7 +82,14 @@ class CartItem extends Model
     {
         $this->total = ($this->price ?? 0) * ($this->quantity ?? 0);
         if ($this->taxable()) {
-            $this->tax_amount = $this->total - ($this->total / (1 + ($this->tax_percent ?? 0)));
+            $rate = $this->tax_percent ?? 0;
+
+            // A cart's prices either include VAT (the tax hides inside the
+            // total) or exclude it (the tax comes on top). Unrounded: the
+            // application rounds once per VAT bucket, as an invoice does.
+            $this->tax_amount = Cart::pricesIncludeTaxFor((int) $this->cart_id)
+                ? $this->total - ($this->total / (1 + $rate))
+                : $this->total * $rate;
         } else {
             $this->tax_amount = 0;
         }
