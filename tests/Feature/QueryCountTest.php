@@ -2,6 +2,7 @@
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
+use juniorE\ShoppingCart\Enums\CouponTypes;
 use juniorE\ShoppingCart\Enums\ItemTypes;
 use juniorE\ShoppingCart\Models\Cart as CartModel;
 use juniorE\ShoppingCart\Tests\TestCase;
@@ -72,6 +73,26 @@ class QueryCountTest extends TestCase
         $this->assertSame(1, $this->counting('select * from "carts"', fn () => $cart->getShippingRate()));
         $this->assertSame(1, $this->counting('select * from "carts"', fn () => $cart->getDeliveryCost()));
         $this->assertEquals(5, $cart->getDeliveryCost());
+    }
+
+    #[Test]
+    public function a_coupons_discount_reads_the_cart_once()
+    {
+        $cart = cart();
+        $cart->addProduct($this->line(1), true);
+        $coupon = $cart->couponsRepository->addCoupon([
+            'name' => 'FIVE',
+            'coupon_type' => CouponTypes::AMOUNT,
+            'discount_amount' => 5,
+        ]);
+
+        $discount = null;
+        $reads = $this->counting('select * from "carts"', function () use ($coupon, $cart, &$discount) {
+            $discount = $coupon->discount(10, 0, 0.0, $cart);
+        });
+
+        $this->assertSame(1, $reads);
+        $this->assertEquals(5, $discount);
     }
 
     private function line(int $plu): array

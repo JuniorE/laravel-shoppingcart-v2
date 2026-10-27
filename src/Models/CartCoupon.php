@@ -79,8 +79,11 @@ class CartCoupon extends Model
             return 0;
         }
 
+        // Never more than the cart is worth before its discount.
+        $row = $cart->getCart();
+
         return min(
-            (float) $cart->getCart()->grand_total + (float) $cart->getCart()->discount,
+            (float) $row->grand_total + (float) $row->discount,
             $this->discountAmount($price, $quantity, $productPrice)
         );
     }
