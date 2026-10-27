@@ -100,7 +100,9 @@ class EloquentCartItemDatabase implements CartItemDatabase
 
     private function updatePrices(CartItem $item)
     {
-        if (! $item->coupon) {
+        // A line of a discount-exempt type (a warranty, by default) keeps
+        // its code but takes nothing off, as CartItem::updateTotals() has it.
+        if (! $item->coupon || ! $item->discountable()) {
             return;
         }
 
@@ -109,7 +111,7 @@ class EloquentCartItemDatabase implements CartItemDatabase
             'discount' => $discount,
         ]);
 
-        app(CartDatabase::class)->updateTotal();
+        app(CartDatabase::class)->updateTotal($item->cart_id);
     }
 
     private function updateSubproducts(CartItem $item, float $multiplier, ?Closure $shouldUpdate = null)

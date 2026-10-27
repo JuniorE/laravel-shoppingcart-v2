@@ -45,6 +45,27 @@ class CouponDiscountTest extends TestCase
         $this->assertCount(0, $coupons);
     }
 
+    #[Test]
+    public function a_line_of_a_discount_exempt_type_gets_no_discount_from_its_coupon()
+    {
+        $percent = cart()->couponsRepository->addCoupon([
+            'name' => 'TENPCT',
+            'coupon_type' => CouponTypes::PERCENT,
+            'discount_percent' => 0.10,
+            'ends_other_coupons' => false,
+        ]);
+        $cart = cart();
+        $plain = $cart->addProduct($this->line(1));
+        $warranty = $cart->addProduct($this->line(2, ['type' => ItemTypes::WARRANTY]));
+
+        $cart->itemsRepository->setCouponCode($plain, $percent->name);
+        $cart->itemsRepository->setCouponCode($warranty, $percent->name);
+
+        $this->assertEqualsWithDelta(1.0, (float) $plain->fresh()->discount, 0.0001);
+        $this->assertEqualsWithDelta(0.0, (float) $warranty->fresh()->discount, 0.0001);
+        $this->assertEqualsWithDelta(19.0, (float) $cart->getCart()->grand_total, 0.0001);
+    }
+
     private function amountCoupon(string $name, float $amount, array $extra = []): CartCoupon
     {
         return cart()->couponsRepository->addCoupon(array_merge([

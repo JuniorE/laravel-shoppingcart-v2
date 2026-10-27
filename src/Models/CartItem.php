@@ -96,7 +96,7 @@ class CartItem extends Model
         if ($this->coupon_code && $this->discountable()) {
             $coupon = CartCoupon::firstWhere('name', $this->coupon_code);
 
-            if ($coupon && ! collect('shoppingcart.discount_exempt_types')->contains($this->type)) {
+            if ($coupon && ! collect(config('shoppingcart.discount_exempt_types'))->contains($this->type)) {
                 $this->discount = $coupon->discount($this->price * $this->quantity, $this->quantity, $this->price);
             }
         }
