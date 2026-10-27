@@ -1087,4 +1087,20 @@ class CartTest extends TestCase
         $this->assertEquals(0, $cart->getDeliveryCost());
         $this->assertEqualsWithDelta(5.0, (float) $cart->getCart()->grand_total, 0.0001);
     }
+
+    #[Test]
+    public function contains_is_true_only_when_every_given_plu_is_in_the_cart()
+    {
+        $cart = cart();
+        $cart->addProduct([
+            'plu' => 1,
+            'price' => 5,
+            'quantity' => 1,
+            'type' => ItemTypes::PLU,
+        ]);
+
+        $this->assertTrue($cart->contains([1]));
+        $this->assertFalse($cart->contains([999, 1]));
+        $this->assertFalse($cart->contains([1, 999]));
+    }
 }

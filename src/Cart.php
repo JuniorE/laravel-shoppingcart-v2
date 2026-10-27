@@ -214,18 +214,14 @@ class Cart extends BaseCart
         // and an in-memory snapshot misses the item whose create-event
         // is being handled right now.
         $items = $this->getItems($this->id)->map->only('plu')->flatten();
-        $success = true;
+
         foreach ($plus as $plu) {
             if (! $items->contains($plu)) {
-                $success = false;
-
-                continue;
-            } else {
-                $success = true;
+                return false;
             }
         }
 
-        return $success;
+        return true;
     }
 
     private function updateOrCreateCartItem(array $product): CartItem
