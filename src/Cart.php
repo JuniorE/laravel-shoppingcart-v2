@@ -176,10 +176,15 @@ class Cart extends BaseCart
         session()->put(self::SESSION_CART_IDENTIFIER, $identifier);
     }
 
+    /**
+     * What the cart's shipping method costs it: nothing without a method,
+     * and nothing when the cart reaches none of the method's rates (an
+     * application with its own tier rule decides what that means).
+     */
     public function getDeliveryCost()
     {
         return $this->getCart()->shipping_method
-            ? $this->getShippingRate()->price
+            ? ($this->getShippingRate()?->price ?? 0)
             : 0;
     }
 

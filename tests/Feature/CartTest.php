@@ -1063,4 +1063,28 @@ class CartTest extends TestCase
         $this->assertEquals(1, $finalCart->itemsTree()[1]->quantity);
         $this->assertCount(3, $finalCart->items());
     }
+
+    #[Test]
+    public function a_shipping_method_without_a_reachable_rate_costs_nothing()
+    {
+        $cart = cart();
+        $cart->shippingRateRepository->addShippingRate([
+            'method' => 'truck',
+            'price' => 7,
+            'minimum_cart_price' => 50,
+        ]);
+        $cart->addProduct([
+            'plu' => 1,
+            'price' => 5,
+            'quantity' => 1,
+            'type' => ItemTypes::PLU,
+        ]);
+
+        $cart->setShippingMethod('truck');
+
+        $this->assertSame('truck', $cart->getCart()->shipping_method);
+        $this->assertNull($cart->getShippingRate());
+        $this->assertEquals(0, $cart->getDeliveryCost());
+        $this->assertEqualsWithDelta(5.0, (float) $cart->getCart()->grand_total, 0.0001);
+    }
 }
