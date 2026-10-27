@@ -6,7 +6,6 @@ use Hash;
 use Illuminate\Support\Collection;
 use juniorE\ShoppingCart\Data\Interfaces\CartDatabase;
 use juniorE\ShoppingCart\Models\CartCoupon;
-use juniorE\ShoppingCart\Models\CartItem;
 
 abstract class BaseCart implements Contracts\Cart
 {
@@ -36,11 +35,6 @@ abstract class BaseCart implements Contracts\Cart
      * @var int
      */
     public $id;
-
-    /**
-     * @var Collection|CartItem[]
-     */
-    protected $cartItems;
 
     /**
      * @var Collection|CartCoupon[]
@@ -100,7 +94,6 @@ abstract class BaseCart implements Contracts\Cart
         }
 
         $this->id = $cart->id;
-        $this->cartItems = $cart->items;
         $this->coupons = $cart->coupons;
 
         return $this->identifier;
@@ -117,7 +110,6 @@ abstract class BaseCart implements Contracts\Cart
         $cart = app(CartDatabase::class)->createCart($this->identifier);
 
         $this->id = $cart->id;
-        $this->cartItems = collect();
         $this->coupons = collect();
 
         session()->put(self::SESSION_CART_IDENTIFIER, $this->identifier);

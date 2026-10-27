@@ -2,6 +2,7 @@
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
+use juniorE\ShoppingCart\Cart;
 use juniorE\ShoppingCart\Enums\CouponTypes;
 use juniorE\ShoppingCart\Enums\ItemTypes;
 use juniorE\ShoppingCart\Models\Cart as CartModel;
@@ -93,6 +94,19 @@ class QueryCountTest extends TestCase
 
         $this->assertSame(1, $reads);
         $this->assertEquals(5, $discount);
+    }
+
+    #[Test]
+    public function restoring_a_cart_loads_none_of_its_lines()
+    {
+        cart('x')->addProduct($this->line(1), true);
+        cart('x')->addProduct($this->line(2), true);
+
+        // Past the registry, which would answer from its cache.
+        $reads = $this->counting('select * from "cart_items"', fn () => new Cart('x'));
+
+        $this->assertSame(0, $reads);
+        $this->assertCount(2, (new Cart('x'))->items());
     }
 
     private function line(int $plu): array

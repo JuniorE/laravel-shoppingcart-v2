@@ -41,12 +41,6 @@ class Cart extends BaseCart
 
     public function removeItem(CartItem $item): void
     {
-        $this->cartItems = $this->cartItems
-            ->filter(function ($cartItem) use ($item) {
-                return $cartItem->id !== $item->id;
-            })
-            ->values();
-
         app(CartDatabase::class)->removeCartItem($item);
     }
 
@@ -63,7 +57,6 @@ class Cart extends BaseCart
 
     public function empty()
     {
-        $this->cartItems = collect();
         app(CartItemDatabase::class)->emptyCart($this->id);
 
         return $this;
@@ -243,8 +236,6 @@ class Cart extends BaseCart
     {
         $this->itemsRepository->setQuantity($item, $quantity);
 
-        $this->cartItems = $this->getCart()->items;
-
         return $item;
     }
 
@@ -264,12 +255,7 @@ class Cart extends BaseCart
 
     private function createCartItem(array $product): CartItem
     {
-        $database = app(CartDatabase::class);
-
-        $cartItem = $database->createCartItem($product);
-        $this->cartItems->push($cartItem);
-
-        return $cartItem;
+        return app(CartDatabase::class)->createCartItem($product);
     }
 
     /**
