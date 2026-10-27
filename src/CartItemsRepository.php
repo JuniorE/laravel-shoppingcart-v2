@@ -30,8 +30,10 @@ class CartItemsRepository implements Contracts\CartItemsRepository
             return;
         }
 
+        // The coupons on the line's own cart: without a cart id,
+        // getCoupons() answers with every coupon there is.
         if ($coupon->ends_other_coupons
-            && app(CartCouponDatabase::class)->getCoupons($item->parent_id)->count() > 0) {
+            && app(CartCouponDatabase::class)->getCoupons($item->cart_id)->count() > 0) {
             return;
         }
 
