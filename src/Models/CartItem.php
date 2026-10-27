@@ -175,15 +175,10 @@ class CartItem extends Model
             app(CartDatabase::class)->updateTotal($model->cart_id);
         });
 
-        static::creating(function (CartItem $model) {
-            $model->onUpdate();
-        });
-
+        // saving fires before both creating and updating: one pass per save.
+        // The line's hash and amounts were worked out twice, each time
+        // reading the cart's VAT mode.
         static::saving(function (CartItem $model) {
-            $model->onUpdate();
-        });
-
-        static::updating(function (CartItem $model) {
             $model->onUpdate();
         });
     }

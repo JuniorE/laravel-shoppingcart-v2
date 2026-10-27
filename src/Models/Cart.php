@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Facades\Log;
+use juniorE\ShoppingCart\CartTaxModes;
 use juniorE\ShoppingCart\Events\Cart\CartCreatedEvent;
 use juniorE\ShoppingCart\Events\Cart\CartDeletedEvent;
 use juniorE\ShoppingCart\Events\Cart\CartUpdatedEvent;
@@ -72,9 +73,11 @@ class Cart extends Model
      */
     public static function pricesIncludeTaxFor(int $cartId): bool
     {
-        $value = static::query()->whereKey($cartId)->value('prices_include_tax');
+        return app(CartTaxModes::class)->remember($cartId, function () use ($cartId) {
+            $value = static::query()->whereKey($cartId)->value('prices_include_tax');
 
-        return $value === null ? true : (bool) $value;
+            return $value === null ? true : (bool) $value;
+        });
     }
 
     public function history()
@@ -113,6 +116,18 @@ class Cart extends Model
 
         static::updated(function (Cart $model) {
             event(new CartUpdatedEvent($model));
+        });
+
+        // A cart whose VAT mode was just written, or that is gone, is read
+        // afresh. Not on every save: each line's totals update saves the cart.
+        static::saved(function (Cart $model) {
+            if ($model->wasRecentlyCreated || $model->wasChanged('prices_include_tax')) {
+                app(CartTaxModes::class)->forget((int) $model->getKey());
+            }
+        });
+
+        static::deleted(function (Cart $model) {
+            app(CartTaxModes::class)->forget((int) $model->getKey());
         });
 
         static::created(function (Cart $model) {

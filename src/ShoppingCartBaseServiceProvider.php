@@ -28,6 +28,7 @@ class ShoppingCartBaseServiceProvider extends ServiceProvider
         // resolves Cart::class with an identifier parameter, and every
         // fresh build restores the cart from the database.
         app()->scoped(CartRegistry::class);
+        app()->scoped(CartTaxModes::class);
         app()->bind(Cart::class, function ($app, array $parameters) {
             return $app->make(CartRegistry::class)->get($parameters['identifier'] ?? null);
         });
