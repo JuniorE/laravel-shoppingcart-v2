@@ -37,21 +37,27 @@ interface CartDatabase
 
     public function removeCartItem(CartItem $item): void;
 
-    public function setCheckoutMethod(string $method): void;
+    /*
+     * The setters below act on the cart whose id they are given. Without
+     * one they fall back to the session's cart (the cart() helper), as they
+     * did before they took an id.
+     */
 
-    public function removeShippingMethod(): void;
+    public function setCheckoutMethod(string $method, ?int $cartId = null): void;
 
-    public function setShippingMethod(string $method): void;
+    public function removeShippingMethod(?int $cartId = null): void;
 
-    public function setConversionTime(int $minutes): void;
+    public function setShippingMethod(string $method, ?int $cartId = null): void;
+
+    public function setConversionTime(int $minutes, ?int $cartId = null): void;
 
     public function updateTotal(?int $cartId = null): void;
 
-    public function setAdditionalData(array $data): void;
+    public function setAdditionalData(array $data, ?int $cartId = null): void;
 
-    public function addCoupon(CartCoupon $coupon): void;
+    public function addCoupon(CartCoupon $coupon, ?int $cartId = null): void;
 
-    public function removeCoupon(): void;
+    public function removeCoupon(?int $cartId = null): void;
 
-    public function clear(bool $hard = false): void;
+    public function clear(bool $hard = false, ?int $cartId = null): void;
 }

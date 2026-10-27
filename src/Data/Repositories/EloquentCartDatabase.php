@@ -40,7 +40,9 @@ class EloquentCartDatabase implements CartDatabase
                 ])
                 ->toArray()
         );
-        $this->updateTotal();
+        // The line's own cart, not the session's: the two differ for a
+        // caller that holds a cart by identifier.
+        $this->updateTotal($product['cart_id'] ?? null);
 
         return $cartItem;
     }
@@ -82,70 +84,104 @@ class EloquentCartDatabase implements CartDatabase
         $item->delete();
     }
 
-    public function setCheckoutMethod(string $method): void
+    public function setCheckoutMethod(string $method, ?int $cartId = null): void
     {
-        cart()->getCart()->update([
+        $this->cartRow($cartId)?->update([
             'checkout_method' => $method,
         ]);
     }
 
-    public function setShippingMethod(string $method): void
+    public function setShippingMethod(string $method, ?int $cartId = null): void
     {
-        cart()->getCart()->update([
+        $this->cartRow($cartId)?->update([
             'shipping_method' => $method,
         ]);
     }
 
-    public function setConversionTime(int $minutes): void
+    public function setConversionTime(int $minutes, ?int $cartId = null): void
     {
-        cart()->getCart()->update([
+        $this->cartRow($cartId)?->update([
             'conversion_time' => $minutes,
         ]);
     }
 
-    public function addCoupon(CartCoupon $coupon): void
+    public function addCoupon(CartCoupon $coupon, ?int $cartId = null): void
     {
-        cart()->getCart()->update([
+        $cart = $this->cartRow($cartId);
+        if (! $cart) {
+            return;
+        }
+
+        $cart->update([
             'coupon_code' => $coupon->name,
         ]);
 
-        $this->updateTotal();
+        $this->updateTotal($cart->id);
     }
 
-    public function removeCoupon(): void
+    public function removeCoupon(?int $cartId = null): void
     {
-        cart()->getCart()->update([
+        $cart = $this->cartRow($cartId);
+        if (! $cart) {
+            return;
+        }
+
+        $cart->update([
             'coupon_code' => null,
         ]);
 
-        $this->updateTotal();
+        $this->updateTotal($cart->id);
     }
 
-    public function clear(bool $hard = false): void
+    public function clear(bool $hard = false, ?int $cartId = null): void
     {
+        $cart = $this->cartRow($cartId);
+        if (! $cart) {
+            return;
+        }
+
         if ($hard) {
-            cart()->getCart()->forceDelete();
+            $cart->forceDelete();
         } else {
-            cart()->getCart()->delete();
+            $cart->delete();
         }
     }
 
-    public function setAdditionalData(array $data): void
+    public function setAdditionalData(array $data, ?int $cartId = null): void
     {
-        $cart = cart()->getCart();
+        $cart = $this->cartRow($cartId);
+        if (! $cart) {
+            return;
+        }
+
         $cart->update([
             'additional' => collect($cart->additional)
                 ->merge($data),
         ]);
     }
 
-    public function removeShippingMethod(): void
+    public function removeShippingMethod(?int $cartId = null): void
     {
-        $cart = cart()->getCart();
+        $cart = $this->cartRow($cartId);
+        if (! $cart) {
+            return;
+        }
+
         $cart->update([
             'shipping_method' => null,
         ]);
         $this->updateTotal($cart->id);
+    }
+
+    /**
+     * The cart with this id, or the session's cart when none is given. A
+     * cart that is gone (nightly clean) has nothing left to change.
+     */
+    private function cartRow(?int $cartId): ?Cart
+    {
+        return $cartId
+            ? Cart::whereId($cartId)->first()
+            : cart()->getCart();
     }
 
     /**
@@ -155,9 +191,7 @@ class EloquentCartDatabase implements CartDatabase
      */
     public function updateTotal(?int $cartId = null): void
     {
-        $cart = $cartId
-            ? Cart::whereId($cartId)->first()
-            : cart()->getCart();
+        $cart = $this->cartRow($cartId);
 
         if (! $cart) {
             return;

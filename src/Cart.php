@@ -75,12 +75,12 @@ class Cart extends BaseCart
             return;
         }
 
-        app(CartDatabase::class)->addCoupon($coupon);
+        app(CartDatabase::class)->addCoupon($coupon, $this->liveCartId());
     }
 
     public function removeCoupon(): void
     {
-        app(CartDatabase::class)->removeCoupon();
+        app(CartDatabase::class)->removeCoupon($this->liveCartId());
     }
 
     /**
@@ -94,22 +94,24 @@ class Cart extends BaseCart
     public function setCheckoutMethod(string $checkoutMethod): void
     {
         $database = app(CartDatabase::class);
-        $database->setCheckoutMethod($checkoutMethod);
+        $cart = $this->getCart();
+        $database->setCheckoutMethod($checkoutMethod, $cart->id);
         // Diffed from created_at forward: Carbon 3 diffs are signed, so the
         // old now()->diffInMinutes(created_at) stored negative minutes.
-        $database->setConversionTime((int) $this->getCart()->created_at->diffInMinutes(now()));
+        $database->setConversionTime((int) $cart->created_at->diffInMinutes(now()), $cart->id);
     }
 
     public function setShippingMethod(string $method): void
     {
         $cartDatabase = app(CartDatabase::class);
-        $cartDatabase->setShippingMethod($method);
-        $cartDatabase->updateTotal();
+        $cartId = $this->liveCartId();
+        $cartDatabase->setShippingMethod($method, $cartId);
+        $cartDatabase->updateTotal($cartId);
     }
 
     public function setAdditionalData(array $data)
     {
-        app(CartDatabase::class)->setAdditionalData($data);
+        app(CartDatabase::class)->setAdditionalData($data, $this->liveCartId());
     }
 
     public function pricesIncludeTax(): bool

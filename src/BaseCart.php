@@ -63,7 +63,7 @@ abstract class BaseCart implements Contracts\Cart
 
     public function destroy(): void
     {
-        app(CartDatabase::class)->clear();
+        app(CartDatabase::class)->clear(false, $this->id);
         $this->create();
     }
 
@@ -137,6 +137,6 @@ abstract class BaseCart implements Contracts\Cart
 
     public function getItems(?int $cartId = null)
     {
-        return app(CartDatabase::class)->getCartItems($cartId);
+        return app(CartDatabase::class)->getCartItems($cartId ?? $this->id);
     }
 }
