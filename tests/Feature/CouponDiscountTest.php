@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use juniorE\ShoppingCart\Data\Interfaces\CartCouponDatabase;
 use juniorE\ShoppingCart\Enums\CouponTypes;
 use juniorE\ShoppingCart\Enums\ItemTypes;
 use juniorE\ShoppingCart\Models\CartCoupon;
@@ -29,6 +30,19 @@ class CouponDiscountTest extends TestCase
 
         $this->assertSame('ONLY', $secondLine->fresh()->coupon_code);
         $this->assertNull($firstLine->fresh()->coupon_code);
+    }
+
+    #[Test]
+    public function the_coupons_of_a_cart_that_is_gone_are_none()
+    {
+        $cart = cart('gone');
+        $cart->addProduct($this->line(1));
+        $id = $cart->id;
+        $cart->getCart()->delete();
+
+        $coupons = app(CartCouponDatabase::class)->getCoupons($id);
+
+        $this->assertCount(0, $coupons);
     }
 
     private function amountCoupon(string $name, float $amount, array $extra = []): CartCoupon
