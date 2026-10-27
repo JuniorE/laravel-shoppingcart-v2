@@ -3,6 +3,7 @@
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use juniorE\ShoppingCart\BaseCart;
 use juniorE\ShoppingCart\Enums\ItemTypes;
+use juniorE\ShoppingCart\Models\Cart as CartModel;
 use juniorE\ShoppingCart\Tests\TestCase;
 use PHPUnit\Framework\Attributes\Test;
 
@@ -75,5 +76,36 @@ class CartRegistryTest extends TestCase
 
         $this->assertEquals('customer-123', $resolved->identifier);
         $this->assertEquals($cartId, $resolved->getCart()->id);
+    }
+
+    #[Test]
+    public function a_named_cart_that_does_not_exist_is_created_under_that_name()
+    {
+        $first = cart('x');
+        $second = cart('x');
+
+        $this->assertSame('x', $first->identifier);
+        $this->assertSame($first->id, $second->id);
+        $this->assertSame(1, CartModel::where('identifier', 'x')->count());
+        $this->assertSame(1, CartModel::count());
+    }
+
+    #[Test]
+    public function a_cart_deleted_mid_request_is_recreated_under_its_own_identifier()
+    {
+        $cart = cart('x');
+        $cart->getCart()->delete();
+
+        $cart->addProduct([
+            'plu' => 1,
+            'price' => 10,
+            'quantity' => 1,
+            'type' => ItemTypes::PLU,
+        ]);
+
+        $this->assertSame('x', $cart->identifier);
+        $this->assertSame(1, CartModel::where('identifier', 'x')->count());
+        $this->assertSame($cart->id, cart('x')->getCart()->id);
+        $this->assertCount(1, cart('x')->items());
     }
 }

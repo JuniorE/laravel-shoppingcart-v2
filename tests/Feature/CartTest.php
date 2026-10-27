@@ -512,7 +512,7 @@ class CartTest extends TestCase
     }
 
     #[Test]
-    public function does_throw_null_pointer_exception_when_cart_gets_cleaned()
+    public function a_cleaned_cart_is_recreated_under_its_own_identifier()
     {
         cart()->addProduct([
             'plu' => 5,
@@ -529,8 +529,11 @@ class CartTest extends TestCase
         cart()->addProduct([
             'plu' => 5,
         ]);
+        // The session still names the cleaned cart, so it comes back under
+        // that name rather than a new one the session would have to learn.
         $this->assertCount(1, cart()->items());
-        $this->assertNotEquals($id, cart()->identifier);
+        $this->assertEquals($id, cart()->identifier);
+        $this->assertSame(1, Models\Cart::where('identifier', $id)->count());
     }
 
     #[Test]

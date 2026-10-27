@@ -93,7 +93,10 @@ abstract class BaseCart implements Contracts\Cart
 
         $cart = app(CartDatabase::class)->getCart($this->identifier);
         if (! $cart) {
-            return $this->create();
+            // Under the name asked for: a generated one made every
+            // cart('x') for a missing x a new cart, which the registry
+            // then kept under the generated name.
+            return $this->create($identifier);
         }
 
         $this->id = $cart->id;
@@ -104,11 +107,12 @@ abstract class BaseCart implements Contracts\Cart
     }
 
     /**
-     * Create Cart
+     * Create the cart under the given identifier, or under a new one when
+     * none is given.
      */
-    protected function create(): string
+    protected function create(?string $identifier = null): string
     {
-        $this->identifier = self::generateIdentifier();
+        $this->identifier = $identifier ?? self::generateIdentifier();
 
         $cart = app(CartDatabase::class)->createCart($this->identifier);
 

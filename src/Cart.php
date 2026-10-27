@@ -147,8 +147,9 @@ class Cart extends BaseCart
         }
 
         // The cart row vanished underneath this instance (nightly
-        // clean): recreate, like a freshly constructed cart() would.
-        $this->create();
+        // clean): recreate it under its own identifier, like a freshly
+        // constructed cart() would.
+        $this->create($this->identifier);
 
         return app(CartDatabase::class)->getCart($this->identifier);
     }
@@ -242,7 +243,7 @@ class Cart extends BaseCart
     private function liveCartId(): int
     {
         if (! app(CartDatabase::class)->getCart($this->identifier)) {
-            $this->create();
+            $this->create($this->identifier);
         }
 
         return $this->id;
