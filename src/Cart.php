@@ -183,18 +183,28 @@ class Cart extends BaseCart
      */
     public function getDeliveryCost()
     {
-        return $this->getCart()->shipping_method
-            ? ($this->getShippingRate()?->price ?? 0)
+        $cart = $this->getCart();
+
+        return $cart->shipping_method
+            ? ($this->shippingRateFor($cart)?->price ?? 0)
             : 0;
     }
 
     public function getShippingRate()
     {
-        $rates = $this->shippingRateRepository->shippingRatesForMethod($this->getCart()->shipping_method)
-            ->where('minimum_cart_price', '<=', $this->getCart()->sub_total + $this->getCart()->tax_total)
-            ->sortBy('minimum_cart_price');
+        return $this->shippingRateFor($this->getCart());
+    }
 
-        return $rates->last();
+    /**
+     * The highest rate of the cart's method that its total reaches, read
+     * off the row the caller already holds: every updateTotal() asks.
+     */
+    private function shippingRateFor(Models\Cart $cart)
+    {
+        return $this->shippingRateRepository->shippingRatesForMethod($cart->shipping_method)
+            ->where('minimum_cart_price', '<=', $cart->sub_total + $cart->tax_total)
+            ->sortBy('minimum_cart_price')
+            ->last();
     }
 
     public function contains(array $plus): bool

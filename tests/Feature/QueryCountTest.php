@@ -61,6 +61,19 @@ class QueryCountTest extends TestCase
         $this->assertEqualsWithDelta(30.0, (float) $cart->getCart()->grand_total, 0.0001);
     }
 
+    #[Test]
+    public function the_shipping_rate_and_delivery_cost_read_the_cart_once()
+    {
+        $cart = cart();
+        $cart->shippingRateRepository->addShippingRate(['method' => 'truck', 'price' => 5, 'minimum_cart_price' => 0]);
+        $cart->addProduct($this->line(1), true);
+        $cart->setShippingMethod('truck');
+
+        $this->assertSame(1, $this->counting('select * from "carts"', fn () => $cart->getShippingRate()));
+        $this->assertSame(1, $this->counting('select * from "carts"', fn () => $cart->getDeliveryCost()));
+        $this->assertEquals(5, $cart->getDeliveryCost());
+    }
+
     private function line(int $plu): array
     {
         return ['plu' => $plu, 'type' => ItemTypes::PLU, 'price' => 10, 'quantity' => 1, 'tax_percent' => 0.06];
