@@ -2,6 +2,7 @@
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
+use juniorE\ShoppingCart\Enums\CouponTypes;
 use juniorE\ShoppingCart\Enums\ItemTypes;
 use juniorE\ShoppingCart\Models\Cart as CartModel;
 use juniorE\ShoppingCart\Tests\TestCase;
@@ -241,5 +242,29 @@ class NetPricingTest extends TestCase
         $this->assertEqualsWithDelta(50.0, (float) $row->sub_total, 0.0001);
         $this->assertEqualsWithDelta(6.0, (float) $row->tax_total, 0.0001);
         $this->assertEqualsWithDelta(56.0, (float) $row->grand_total, 0.0001);
+    }
+
+    #[Test]
+    public function an_amount_coupon_on_a_net_cart_comes_off_the_total_with_the_tax()
+    {
+        $cart = cart();
+        $cart->setPricesIncludeTax(false);
+        $cart->addProduct(['plu' => 5, 'price' => 100, 'quantity' => 1, 'tax_percent' => 0.06]);
+        $coupon = $cart->couponsRepository->addCoupon([
+            'name' => 'TEN',
+            'coupon_type' => CouponTypes::AMOUNT,
+            'discount_amount' => 10,
+        ]);
+
+        $cart->addCoupon($coupon);
+
+        // The package takes the coupon off the grand total and leaves the
+        // VAT as it was: tax_total stays the lines' VAT. An application that
+        // must lower the VAT with a discount does so in its own updateTotal().
+        $row = $cart->getCart()->fresh();
+        $this->assertEqualsWithDelta(10.0, (float) $row->discount, 0.0001);
+        $this->assertEqualsWithDelta(100.0, (float) $row->sub_total, 0.0001);
+        $this->assertEqualsWithDelta(6.0, (float) $row->tax_total, 0.0001);
+        $this->assertEqualsWithDelta(96.0, (float) $row->grand_total, 0.0001);
     }
 }

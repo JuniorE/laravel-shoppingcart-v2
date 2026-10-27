@@ -1103,4 +1103,33 @@ class CartTest extends TestCase
         $this->assertFalse($cart->contains([999, 1]));
         $this->assertFalse($cart->contains([1, 999]));
     }
+
+    #[Test]
+    public function merging_a_colliding_line_with_a_subproduct_sums_it_and_moves_the_subproduct()
+    {
+        $customer = cart('customer');
+        $own = $customer->addProduct(['plu' => 1, 'price' => 10, 'quantity' => 1, 'type' => ItemTypes::PLU]);
+
+        $guest = cart('guest');
+        $guestLine = $guest->addProduct(['plu' => 1, 'price' => 10, 'quantity' => 2, 'type' => ItemTypes::PLU]);
+        $guest->addProduct([
+            'plu' => 9,
+            'price' => 3,
+            'quantity' => 1,
+            'type' => ItemTypes::WARRANTY,
+            'parent_id' => $guestLine->id,
+        ]);
+
+        $customer->merge($guest);
+
+        $tree = $customer->itemsTree();
+        $this->assertCount(1, $tree);
+        $this->assertSame($own->id, $tree[0]->id);
+        $this->assertEquals(3, $tree[0]->quantity);
+        $this->assertCount(1, $tree[0]->subproducts);
+        $this->assertEquals(9, $tree[0]->subproducts[0]->plu);
+        $this->assertEquals($customer->id, $tree[0]->subproducts[0]->cart_id);
+        $this->assertCount(2, $customer->items());
+        $this->assertEqualsWithDelta(33.0, (float) $customer->getCart()->grand_total, 0.0001);
+    }
 }
