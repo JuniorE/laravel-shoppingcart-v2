@@ -16,5 +16,9 @@ class ItemTypes
 
     const MENU = 6;
 
-    const VOUCHER = 7;
+    /**
+     * Not 7: the shop writes these as O_DETAILS.LIJNTYPE, and the till
+     * (ExquisStudio) reads 7 as its own package line.
+     */
+    const VOUCHER = 9;
 }
