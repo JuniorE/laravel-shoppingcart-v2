@@ -22,6 +22,15 @@ class AddCouponCodeRelationToCartsTable extends Migration
             return;
         }
 
+        // A shop can have the foreign key without this migration recorded (an older
+        // webshop's database, e.g. vleeshalle 2026-11-02): it keeps what it has.
+        $exists = collect(Schema::getForeignKeys(Cart::tableName()))
+            ->contains(fn (array $key) => $key['columns'] === ['coupon_code']);
+
+        if ($exists) {
+            return;
+        }
+
         Schema::table(Cart::tableName(), function (Blueprint $table) {
             $table->foreign('coupon_code')->references('name')->on('cart_coupons')->onDelete('cascade');
         });

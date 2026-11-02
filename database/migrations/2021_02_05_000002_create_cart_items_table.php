@@ -14,6 +14,12 @@ class CreateCartItemsTable extends Migration
      */
     public function up()
     {
+        // A shop can have the table without this migration recorded (an older
+        // webshop's database, e.g. vleeshalle 2026-11-02): it keeps what it has.
+        if (Schema::hasTable('cart_items')) {
+            return;
+        }
+
         Schema::create('cart_items', function (Blueprint $table) {
             $table->engine = 'InnoDB';
             $table->bigIncrements('id');
