@@ -59,6 +59,9 @@ class CreateCartItemsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('cart_items');
+        // Nothing. A shop can have this table from before the migration was
+        // recorded (an older webshop's database), so a rollback of its batch
+        // dropped the table with every row in it. A rollback takes nothing
+        // away; drop the table by hand when it really has to go.
     }
 }

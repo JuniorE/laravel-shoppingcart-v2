@@ -31,16 +31,8 @@ class AddNetPricingToCarts extends Migration
 
     public function down()
     {
-        if (Schema::hasColumn('cart_items', 'tax_code')) {
-            Schema::table('cart_items', function (Blueprint $table) {
-                $table->dropColumn('tax_code');
-            });
-        }
-
-        if (Schema::hasColumn(Cart::tableName(), 'prices_include_tax')) {
-            Schema::table(Cart::tableName(), function (Blueprint $table) {
-                $table->dropColumn('prices_include_tax');
-            });
-        }
+        // Nothing. The columns say which baskets are priced net and which
+        // tax a line carries: dropped on a rollback, every business basket
+        // read as a gross one. A rollback takes nothing away.
     }
 }
