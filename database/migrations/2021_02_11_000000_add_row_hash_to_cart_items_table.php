@@ -31,6 +31,8 @@ class AddRowHashToCartItemsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('cart_shipping_rates');
+        // Nothing. This dropped cart_shipping_rates (a copy-paste from the
+        // migration that creates it), so rolling back this one migration
+        // removed the shop's delivery tiers.
     }
 }
